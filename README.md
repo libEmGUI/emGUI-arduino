@@ -6,11 +6,11 @@ C GUI Library for Arduino.
 Some photos 
 
 
-![Main menu](https://github.com/libEmGUI/emGUI-arduino/blob/master/Pictures/fa314fcf-e02c-4a30-bb53-9c6628b62733.jpg?raw=true)![Another photo](https://github.com/libEmGUI/emGUI-arduino/blob/master/Pictures/af27046c-2f33-44af-a220-e1cf2456dcb5.jpg?raw=true)
+![Main menu](Pictures/fa314fcf-e02c-4a30-bb53-9c6628b62733.jpg)![Another photo](Pictures/af27046c-2f33-44af-a220-e1cf2456dcb5.jpg)
 
 
-This lib could work not only with Arduino, so we made an example with visual studio (will be submited soon)
-![Example on PC: main menu](https://github.com/libEmGUI/emGUI-arduino/blob/master/Pictures/main%20menu.PNG?raw=true)![Example on PC: modal dialog](https://github.com/libEmGUI/emGUI-arduino/blob/master/Pictures/modal%20dialog.PNG?raw=true)![Example on PC: Big colorful image](https://github.com/libEmGUI/emGUI-arduino/blob/master/Pictures/Image.PNG?raw=true)![Example on PC: Multiline textbox with left allign](https://github.com/libEmGUI/emGUI-arduino/blob/master/Pictures/Text%20box.PNG?raw=true)
+This lib could work not only with Arduino, so we made an [example with visual studio](https://github.com/libEmGUI/emGUI-example) (will be submited soon)
+![Example on PC: main menu](Pictures/main%20menu.PNG)![Example on PC: modal dialog](Pictures/modal%20dialog.PNG)![Example on PC: Big colorful image](Pictures/Image.PNG)![Example on PC: Multiline textbox with left allign](Pictures/Text%20box.PNG)
 
 // Russian 
 
