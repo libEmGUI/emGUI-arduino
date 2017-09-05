@@ -28,7 +28,7 @@
 //#define TFT_RST  0  // Reset pin (could connect to Arduino RESET pin)
 // TIANMA2.8
 #define TFT_CS   D8  // Chip select control pin
-#define TFT_DC   D2  // Data Command control pin
+#define TFT_DC   D3  // Data Command control pin
 #define TFT_RST  0  // Reset pin (could connect to Arduino RESET pin)
 
 // ##################################################################################
@@ -65,9 +65,9 @@
 
 // Define the SPI clock frequency (40MHz works OK) 80MHz sometimes fails
 
- #define SPI_FREQUENCY 20000000
+// #define SPI_FREQUENCY 20000000
 // #define SPI_FREQUENCY 40000000
- //#define SPI_FREQUENCY 80000000
+ #define SPI_FREQUENCY 80000000
 // #define SPI_FREQUENCY 16000000
 
 
