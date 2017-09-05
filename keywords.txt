@@ -33,5 +33,5 @@ xWindow			KEYWORD2
 # Constants (LITERAL1)
 #######################################
 
-cross LITERAL1
-undo  LITERAL1
+cross	LITERAL1
+undo	LITERAL1
