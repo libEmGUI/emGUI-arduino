@@ -183,7 +183,7 @@ bool btnFolderHDLR(xWidget *) {
 bool myHandler(xWidget *){
   auto window = pxWindowCreate(WINDOW_MENU);
   vWindowSetHeader(window, "Main menu");
-  mouseMonitor = pxLabelCreate(1, 200, 238, 0, "Magic count: 0", FONT_ASCII_8_X, 500, window);
+  mouseMonitor = pxLabelCreate(1, 200, 238, 0, "Magic count: 0", EM_GUI_SMALL_FONT, 500, window);
   uint8_t offset = 15;
 
   uint8_t row1 = offset;
@@ -222,9 +222,9 @@ have changed, and since 2002, the NCAA has used five selectors, \
 the Associated Press (AP), American Football Coaches Association \
 (AFCA), Football Writers Association of America (FWAA), The Sporting \
 News (TSN), and the Walter Camp Football Foundation (WCFF),   \
-to determine consensus All-Americans.[5]", FONT_ASCII_8_X, 1010, window_show_label);
+to determine consensus All-Americans.[5]", EM_GUI_SMALL_FONT, 1010, window_show_label);
 
-  auto labelAbout = pxLabelCreate(1, 1, 238, 60, "This is Demo for emGUI. 2017", FONT_ASCII_8_X, 200, window2_about);
+  auto labelAbout = pxLabelCreate(1, 1, 238, 60, "This is Demo for emGUI. 2017", EM_GUI_SMALL_FONT, 200, window2_about);
 
   vWindowSetOnCloseRequestHandler(window, &bGUIOnWindowCloseHandlerMain);
   auto dialog1 = pxModalDialogWindowCreate();
