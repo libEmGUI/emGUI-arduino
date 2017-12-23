@@ -141,13 +141,12 @@ unsigned long tn = 0;
 xWidget frame1;
 xWindow * window;
 xLabel label1;
-eWindow wind1 = WINDOW_MENU;
 
 void closeWindow() {
 	;
 }
 bool bGUIOnWindowCloseHandlerMain(xWidget *) {
-	auto dial = iModalDialogOpen(MODAL_AUTO, "ny", "Close?", "");
+	auto dial = iModalDialogOpen(EMGUI_MODAL_AUTO, "ny", "Close?", "");
 	vModalDialogSetHandler(dial, 'y', closeWindow);
 	return true;
 }
@@ -159,7 +158,7 @@ void doMagic() {
   pcLabelSetText(mouseMonitor, outString);
 }
 bool btnMagicHDLR(xWidget *) {
-  auto dlg = iModalDialogOpen(MODAL_AUTO, "ny", "Magic Button", "Magic will happen. Are you sure?");
+  auto dlg = iModalDialogOpen(EMGUI_MODAL_AUTO, "ny", "Magic Button", "Magic will happen. Are you sure?");
   vModalDialogSetHandler(dlg, 'y', &doMagic);
   return true;
 }
@@ -190,8 +189,8 @@ bool myHandler(xWidget *){
   uint8_t row2 = row1 + 60 + offset;
   uint8_t row3 = row2 + 60 + offset;
   uint8_t column1 = offset;
-  uint8_t column2 = LCD_SizeX / 2 - 30;
-  uint8_t column3 = LCD_SizeX - offset - 60;
+  uint8_t column2 = EMGUI_LCD_WIDTH / 2 - 30;
+  uint8_t column3 = EMGUI_LCD_WIDTH - offset - 60;
   auto menuBut		= pxMenuButtonCreate(column1, row1, magic, "Do magic", &btnMagicHDLR, window);
   auto menuButAbout	= pxMenuButtonCreate(column2, row1, help, "Info", &btnAboutHDLR, window);
   auto menuButLabel	= pxMenuButtonCreate(column3, row1, process, "Test Label", &btnLabelHDLR, window);
