@@ -1,15 +1,10 @@
-#ifndef EMGUI_H
-#define EMGUI_H
+#ifndef EMGUI_ARDUINO_H
+#define EMGUI_ARDUINO_H
 
-#include "options/opts.h"
-#include "Draw/Draw.h"
-#include "Widgets/Widget.h"
-#include "Widgets/Interface.h"
-#include "Fonts/Font.h"
-#include "Widgets/Button.h"
-#include "Widgets/Label.h"
-#include "Widgets/StatusBar.h"
-#include "Widgets/Button.h"
-#include "Widgets/MenuButton.h"
-#include "Widgets/ModalDialog.h"
-#endif // !EMGUI_H
+#ifdef __cplusplus
+#include <Adafruit_GFX.h> //to add GFX to arduino's include path
+#endif
+
+#include "emGUI/emGUI.h"
+
+#endif

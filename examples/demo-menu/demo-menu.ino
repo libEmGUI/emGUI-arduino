@@ -141,13 +141,12 @@ unsigned long tn = 0;
 xWidget frame1;
 xWindow * window;
 xLabel label1;
-eWindow wind1 = WINDOW_MENU;
 
 void closeWindow() {
 	;
 }
 bool bGUIOnWindowCloseHandlerMain(xWidget *) {
-	auto dial = iModalDialogOpen(MODAL_AUTO, "ny", "Close?", "");
+	auto dial = iModalDialogOpen(EMGUI_MODAL_AUTO, "ny", "Close?", "");
 	vModalDialogSetHandler(dial, 'y', closeWindow);
 	return true;
 }
@@ -159,7 +158,7 @@ void doMagic() {
   pcLabelSetText(mouseMonitor, outString);
 }
 bool btnMagicHDLR(xWidget *) {
-  auto dlg = iModalDialogOpen(MODAL_AUTO, "ny", "Magic Button", "Magic will happen. Are you sure?");
+  auto dlg = iModalDialogOpen(EMGUI_MODAL_AUTO, "ny", "Magic Button", "Magic will happen. Are you sure?");
   vModalDialogSetHandler(dlg, 'y', &doMagic);
   return true;
 }
@@ -183,15 +182,15 @@ bool btnFolderHDLR(xWidget *) {
 bool myHandler(xWidget *){
   auto window = pxWindowCreate(WINDOW_MENU);
   vWindowSetHeader(window, "Main menu");
-  mouseMonitor = pxLabelCreate(1, 200, 238, 0, "Magic count: 0", FONT_ASCII_8_X, 500, window);
+  mouseMonitor = pxLabelCreate(1, 200, 238, 0, "Magic count: 0", EM_GUI_SMALL_FONT, 500, window);
   uint8_t offset = 15;
 
   uint8_t row1 = offset;
   uint8_t row2 = row1 + 60 + offset;
   uint8_t row3 = row2 + 60 + offset;
   uint8_t column1 = offset;
-  uint8_t column2 = LCD_SizeX / 2 - 30;
-  uint8_t column3 = LCD_SizeX - offset - 60;
+  uint8_t column2 = EMGUI_LCD_WIDTH / 2 - 30;
+  uint8_t column3 = EMGUI_LCD_WIDTH - offset - 60;
   auto menuBut		= pxMenuButtonCreate(column1, row1, magic, "Do magic", &btnMagicHDLR, window);
   auto menuButAbout	= pxMenuButtonCreate(column2, row1, help, "Info", &btnAboutHDLR, window);
   auto menuButLabel	= pxMenuButtonCreate(column3, row1, process, "Test Label", &btnLabelHDLR, window);
@@ -222,9 +221,9 @@ have changed, and since 2002, the NCAA has used five selectors, \
 the Associated Press (AP), American Football Coaches Association \
 (AFCA), Football Writers Association of America (FWAA), The Sporting \
 News (TSN), and the Walter Camp Football Foundation (WCFF),   \
-to determine consensus All-Americans.[5]", FONT_ASCII_8_X, 1010, window_show_label);
+to determine consensus All-Americans.[5]", EM_GUI_SMALL_FONT, 1010, window_show_label);
 
-  auto labelAbout = pxLabelCreate(1, 1, 238, 60, "This is Demo for emGUI. 2017", FONT_ASCII_8_X, 200, window2_about);
+  auto labelAbout = pxLabelCreate(1, 1, 238, 60, "This is Demo for emGUI. 2017", EM_GUI_SMALL_FONT, 200, window2_about);
 
   vWindowSetOnCloseRequestHandler(window, &bGUIOnWindowCloseHandlerMain);
   auto dialog1 = pxModalDialogWindowCreate();
