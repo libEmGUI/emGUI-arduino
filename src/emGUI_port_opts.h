@@ -15,7 +15,7 @@
 
 #include <gfxfont.h>
 
-#define EMGUI_XPICTURE_TYPE  unsigned short const*
+#define EMGUI_XPICTURE_TYPE  const char*
 #define EMGUI_XFONT_TYPE const GFXfont *
 
 #define EM_GUI_PICTURE_STORAGE_ATTR PROGMEM
