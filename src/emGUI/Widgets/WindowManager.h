@@ -34,6 +34,7 @@ extern "C" {
 #endif // __cplusplus
 
 	typedef xWidget xWindowManager;
+	typedef bool(*WindowKeyPressEventHdl)      (int wndId, uint16_t uEv);
 
 	xWindowManager * pxWindowManagerCreate(bool(*pxOnCreateHandler)(xWidget *));
 	void vWindowManagerDraw();
@@ -58,6 +59,7 @@ extern "C" {
 	}
 	void vWindowManagerInvalidate();
 	bool bWindowManagerCheckTouchScreenEvent(xTouchEvent *pxTouchScreenEv);
+	bool bWindowManagerCheckKeypressEvent(uint16_t uEv);
 
 	xStatusBar *pxWindowManagerGetStatusBar();
 
@@ -67,6 +69,8 @@ extern "C" {
 	void vWindowManagerUpdateWindow();
 	bool bWindowManagerIsWindowActive(int eWnd);
 	xWindow * pxWindowManagerGetWindow(int eWnd);
+
+	void vWindowManagerSetKeypressHandler(WindowKeyPressEventHdl pxEvenHandler);
 
 #ifdef __cplusplus
 }

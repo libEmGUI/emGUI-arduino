@@ -35,6 +35,8 @@ static xWindowManager *xWindowManagerInstance = NULL;
 static xStatusBar *xStatusBarInstance = NULL;
 static xWindowListItem *xActiveWindow = NULL;
 
+static WindowKeyPressEventHdl pxKeypressHdl = NULL;
+
 static xWindowListItem* prvWindowListFind(xWindow *pxW) {
 	xWindowListItem *xL = xActiveWindow;
 	if (!pxW)
@@ -113,10 +115,27 @@ void vWindowManagerInvalidate() {
 }
 
 bool bWindowManagerCheckTouchScreenEvent(xTouchEvent *pxTouchScreenEv) {
+	if (!xWindowManagerInstance)
+		return false;
 	return bWidgetCheckTouchScreenEvent(xWindowManagerInstance, pxTouchScreenEv);
 }
 
+bool bWindowManagerCheckKeypressEvent(uint16_t uEv) {
+	if (!xWindowManagerInstance)
+		return false;
+	
+	if (bWidgetCheckKeypressEvent(xWindowManagerInstance, uEv))
+		return true;
+
+	if (pxKeypressHdl && xActiveWindow)
+		return pxKeypressHdl(iWindowGetID(xActiveWindow->xWnd),  uEv);
+
+	return false;
+}
+
 xWindow * pxWindowManagerGetWindow(int eWnd) {
+	if (!xWindowManagerInstance)
+		return NULL;
 
 	xWidget *pxN = xWindowManagerInstance->pxFirstChild;
 	while (pxN) {
@@ -246,5 +265,16 @@ void vWindowManagerUpdateWindow() {
 		vWidgetShow(pxSB);
 	}
 	vStatusBarSetWindowHeader(pxSB, pcWindowGetHeader(pxW));
+
+}
+
+void vWindowManagerSetKeypressHandler(WindowKeyPressEventHdl pxEvenHandler) {
+	pxKeypressHdl = pxEvenHandler;
+}
+
+xWindow* vWindowManagerCreateWindow(int eWnd) {
+	if (pxWindowManagerGetWindow(eWnd)) // window with such id is already created
+		return NULL;
+
 
 }
