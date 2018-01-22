@@ -44,12 +44,26 @@ xWidget * pxWidgetCreate(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t u
 }
 
 void vWidgetDispose(xWidget *pxW) {
-	if (!pxW || !pxW->pxOnDispose)
+	if (!pxW)
 		return;
+
+	if (pxW->pxFirstChild) {
+		xWidget *pxWidChild = pxW->pxFirstChild;
+		while (pxWidChild) {
+			xWidget *pxNext = pxWidChild->pxNextSibling;
+			vWidgetDispose(pxWidChild);
+			pxWidChild = pxNext;
+		}
+	}
+
+	if(pxW->pxParent)
+		vWidgetInvalidate(pxW->pxParent);
 
 	vWidgetRemove(pxW);
 
-	pxW->pxOnDispose(pxW);
+	if(pxW->pxOnDispose)
+		pxW->pxOnDispose(pxW);
+
 	if (pxW->pvProp)
 		free(pxW->pvProp);
 	free(pxW);
@@ -170,6 +184,8 @@ void vWidgetDraw(xWidget *pxW) {
 	// validate widget
 	pxW->bValid = true;
 
+	(void)bRedrawed;
+
 #if EMGUI_DEBUG > 0
 	if (bRedrawed) {
 		pxDrawHDL()->vRectangle(pxW->usX0, pxW->usY0, pxW->usX1, pxW->usY1, rand(), false);
@@ -200,25 +216,26 @@ bool bWidgetAdd(xWidget *pxWidParent, xWidget *pxWidChild) {
 }
 
 void vWidgetRemove(xWidget * pxW) {
-	if (!pxW)
+	if (!pxW || !pxW->pxParent)
 		return;
 
-	xWidget * pxChild = pxW->pxParent->pxFirstChild;
+	xWidget * pxIterator = pxW->pxParent->pxFirstChild;
+	xWidget *pxPrev = NULL;
 
-	while (pxChild) {
+	while (pxIterator) {
 
-		xWidget *pxNext = pxWidgetGetNextChild(pxChild);
-		xWidget *pxPrev = NULL;
+		xWidget *pxNext = pxWidgetGetNextChild(pxIterator);
 
-		if (pxChild == pxW) { //first element
+		if (pxIterator == pxW) { //first element
 			if (!pxPrev)
-				pxW->pxFirstChild = pxNext;
+				pxW->pxParent->pxFirstChild = pxNext;
 			else
 				pxPrev->pxNextSibling = pxNext;
+			break;
 		}
 
-		pxPrev = pxChild;
-		pxChild = pxNext;
+		pxPrev = pxIterator;
+		pxIterator = pxNext;
 	}
 }
 
@@ -346,11 +363,13 @@ bool bWidgetSetBgPicture(xWidget *pxW, xPicture pusBgPicture) {
 		return false;
 	bool bInvalidateParent = false;
 
-	if (pxDrawHDL()->usGetPictureW(pusBgPicture) < usWidgetGetW(pxW) || pxDrawHDL()->usGetPictureH(pusBgPicture) < usWidgetGetH(pxW))
-		bInvalidateParent = true;
+	if (pusBgPicture) {
+		if (pxDrawHDL()->usGetPictureW(pusBgPicture) < usWidgetGetW(pxW) || pxDrawHDL()->usGetPictureH(pusBgPicture) < usWidgetGetH(pxW))
+			bInvalidateParent = true;
 
-	if (!bWidgetResize(pxW, pxDrawHDL()->usGetPictureW(pusBgPicture), pxDrawHDL()->usGetPictureH(pusBgPicture)))
-		return false;
+		if (!bWidgetResize(pxW, pxDrawHDL()->usGetPictureW(pusBgPicture), pxDrawHDL()->usGetPictureH(pusBgPicture)))
+			return false;
+	}
 	//do not invalidate if picture is not changed
 	if (pxW->pusBgPicture != pusBgPicture) {
 		pxW->pusBgPicture = pusBgPicture;

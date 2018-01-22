@@ -105,16 +105,22 @@
 	}
 
 	static bool prvOnCloseHandler(xWidget *pxW) {
-		(void)pxW;
+		
+		xThisWnd = NULL;
+		xMessage = NULL;
+		for (int c = 0; c < MODAL_DIALOG_MAX_BUTTONS; c++) {
+			xButtons[c] = NULL;
+		}
 		return true;
 	}
 
 	static bool prvOnCloseRequestHandler(xWidget *pxW) {
 		(void)pxW;
-		if (xMDActive)
-			vModalDialogClose(xMDActive->usDlgID, 0, true);
+		xModalDialog * xMDCurrent = xMDActive;
+		if (xMDCurrent)
+			vModalDialogClose(xMDActive->usDlgID, 0, true); //xMDActive can change during this call, so store it in xMDCurrent
 
-		if (xMDActive)
+		if (xMDCurrent)
 			return false;
 		else
 			return true;
@@ -138,9 +144,11 @@
 			}
 		}
 
-		if (xMDActive->pxDefaultHandler)
+		if (xMDActive->pxDefaultHandler) {
 			if (xMDActive->pxDefaultHandler(cButton, xMDActive->pvCtx))
 				vModalDialogClose(usDlgId, 0, false);
+		}else
+			vModalDialogClose(usDlgId, 0, false);
 
 		return true;
 	}
@@ -154,13 +162,14 @@
 			return xThisWnd;
 
 		xThisWnd = pxWindowCreate(EMGUI_MODAL_WINDOW_ID);
+		vWindowSetDisposable(xThisWnd, true);
 		vWidgetSetBgColor(xThisWnd, EMGUI_COLOR_PLOT_BACKGROUND, false);
 		vWindowSetOnOpenHandler(xThisWnd, prvOnOpenHandler);
 		vWindowSetOnOpenRequestHandler(xThisWnd, prvOnOpenRequestHandler);
 		vWindowSetOnCloseHandler(xThisWnd, prvOnCloseHandler);
 		vWindowSetOnCloseRequestHandler(xThisWnd, prvOnCloseRequestHandler);
 
-		usY = (usWindowManagerGetWindowH() * 4) / 10;
+		usY = (usWidgetGetH(xThisWnd) * 6) / 10;
 
 		xFont xFnt = pxDrawHDL()->xGetDefaultFont();
 
@@ -175,11 +184,11 @@
 		//vProgressBarSetProcExec(xPBar, 55);
 
 		//TODO: get rid of picture dimensions check on create and position buttons on show!
-		usY = (usWindowManagerGetWindowH() / 2 + pxDrawHDL()->usGetPictureH(pxDrawHDL()->xGetDialogPictureSet(' ').xPicMain) / 3);
+		//usY = (usWindowManagerGetWindowH() / 2 + pxDrawHDL()->usGetPictureH(pxDrawHDL()->xGetDialogPictureSet(' ').xPicMain) / 3);
 		usX = 0;
 
 		for (int c = 0; c < MODAL_DIALOG_MAX_BUTTONS; c++) {
-			xButtons[c] = pxButtonCreateFromImageWithText(usX, usY, pxDrawHDL()->xGetDialogPictureSet(' ').xPicMain, "", xThisWnd);
+			xButtons[c] = pxButtonCreateFromImageWithText(usX, usY, NULL, "", xThisWnd);
 			vButtonSetOnClickHandler(xButtons[c], prvButtonHandler);
 			usX += EMGUI_MODAL_DLG_BTN_SPACING;
 			vWidgetHide(xButtons[c]);
@@ -221,7 +230,7 @@
 
 		prvResetDlgWnd();
 
-		betweenBtnsX = (usWindowManagerGetW() - cBtnCnt * usWidgetGetW(xButtons[0])) / (cBtnCnt + 1);
+		betweenBtnsX = (usWidgetGetW(xThisWnd) - cBtnCnt * usWidgetGetW(xButtons[0])) / (cBtnCnt + 1);
 		usY = usWidgetGetY0(xButtons[0], false);
 		usX = betweenBtnsX;
 
@@ -237,7 +246,7 @@
 			bWidgetMoveTo(xBtn, usX, usY);
 			vWidgetShow(xBtn);
 
-			bWidgetSetBgPicture(xBtn, xPicSet.xPicMain);
+			vButtonSetPicture(xBtn, xPicSet.xPicMain);
 			vButtonSetText(xBtn, xPicSet.strLabel);
 
 			usX += betweenBtnsX + usWidgetGetW(xBtn);
@@ -377,7 +386,8 @@
 		xModalDialog * xDlg;
 		xModalDialog * xDlgNext;
 
-		pxModalDialogWindowCreate();
+		if (!xThisWnd)
+			return;
 
 		if (!(xDlg = prvDlgIsOpened(iDlgID, &xDlgNext)))
 			return;
@@ -390,7 +400,8 @@
 		xModalDialog * xDlg;
 		xModalDialog * xDlgNext;
 
-		pxModalDialogWindowCreate();
+		if (!xThisWnd)
+			return;
 
 		if (!(xDlg = prvDlgIsOpened(iDlgID, &xDlgNext)))
 			return;
@@ -403,7 +414,8 @@
 		xModalDialog * xDlg;
 		xModalDialog * xDlgNext;
 
-		pxModalDialogWindowCreate();
+		if (!xThisWnd)
+			return;
 
 		if (!(xDlg = prvDlgIsOpened(iDlgID, &xDlgNext)))
 			return;
@@ -428,7 +440,8 @@
 		xModalDialog * xDlg;
 		xModalDialog * xDlgNext;
 
-		pxModalDialogWindowCreate();
+		if (!xThisWnd)
+			return;
 
 		xDlg = prvDlgIsOpened(iDlgID, &xDlgNext);
 
