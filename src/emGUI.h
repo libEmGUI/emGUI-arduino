@@ -8,6 +8,6 @@
 //Wrapper for passing PROGMEM placed strings to const char* methods of emGUI
 #define F_WRP(const_char_p) (String(F(const_char_p)).c_str()) 
 
-#include "emGUI/emGUI.h"
+#include "emGUI/emGUI.hpp"
 
 #endif
