@@ -51,28 +51,21 @@
  TFT_ILI9341_ESP::TFT_ILI9341_ESP(int16_t w, int16_t h)
  {
  
-   _cs   = TFT_CS;
    _dc   = TFT_DC;
-   _rst  = TFT_RST;
  
-   hwSPI = true;
-   _mosi  = _sclk = 0;
  #ifdef USE_SPI9
    _SPI = &SPI9; // addition JZ 27.12.2016
  #else
    _SPI = &SPI; // fixed JZ 27.12.2016
  #endif
  
-   if (TFT_RST > 0) {
-     digitalWrite(TFT_RST, LOW);
-     pinMode(TFT_RST, OUTPUT);
-   }
+   //if (TFT_RST > 0) {
+     //digitalWrite(TFT_RST, LOW);
+     //pinMode(TFT_RST, OUTPUT);
+   //}
  
    digitalWrite(TFT_DC, HIGH);
    pinMode(TFT_DC, OUTPUT);
- 
-   digitalWrite(TFT_CS, HIGH);
-   pinMode(TFT_CS, OUTPUT);
  
    _width    = w;
    _height   = h;
@@ -134,9 +127,7 @@
  void TFT_ILI9341_ESP::writecommand(uint8_t c)
  {
    *dcport &= ~dcpinmask;
-   *csport &= ~cspinmask;
    spiwrite(c);
-   *csport |= cspinmask;
    *dcport |= dcpinmask;
  }
  
@@ -146,9 +137,7 @@
  ***************************************************************************************/
  void TFT_ILI9341_ESP::writedata(uint8_t c)
  {
-   *csport &= ~cspinmask;
    spiwrite(c);
-   *csport |= cspinmask;
  }
  
  /***************************************************************************************
@@ -166,12 +155,11 @@
  ***************************************************************************************/
  void TFT_ILI9341_ESP::init(void)
  {
-   csport    = portOutputRegister(digitalPinToPort(_cs));
-   cspinmask = digitalPinToBitMask(_cs);
    dcport    = portOutputRegister(digitalPinToPort(_dc));
    dcpinmask = digitalPinToBitMask(_dc);
  
    _SPI->begin();
+   _SPI->setHwCs(true);
  
  #ifndef SUPPORT_TRANSACTIONS
    _SPI->setBitOrder(MSBFIRST);
@@ -181,39 +169,44 @@
  
      spi_begin();
  
-   digitalWrite(TFT_RST, HIGH);
-   delay(1); //Delay 1ms
-   digitalWrite(TFT_RST, LOW);
-   delay(10); //Delay 10ms
-   digitalWrite(TFT_RST, HIGH);
+   //digitalWrite(TFT_RST, HIGH);
+   //delay(1); //Delay 1ms
+   //digitalWrite(TFT_RST, LOW);
+   //delay(10); //Delay 10ms
+   //digitalWrite(TFT_RST, HIGH);
    delay(120); //Delay 120ms
    //---------------------------------------------------------------------------------------------------//
-   writecommand (0x11);
+   writecommand (ILI9341_SLPOUT);
    delay(120); //Delay 120ms 
  
    // DATASHEET SEQUENCE
-   writecommand (0x36);
+   writecommand (ILI9341_MADCTL);
    writedata(0x00);
-   writecommand (0x3a);
+
+   writecommand (ILI9341_PIXFMT);
    writedata(0x05);
-   writecommand (0x21);
-   writecommand (0x2a);
+
+   writecommand (ILI9341_INVON);
+
+   writecommand (ILI9341_CASET);
    writedata(0x00);
    writedata(0x00);
    writedata(0x00);
    writedata(0xef);
-   writecommand (0x2b);
+
+   writecommand (ILI9341_PASET);
    writedata(0x00);
    writedata(0x00);
    writedata(0x00);
    writedata(0xef);
    //--------------------------------ST7789V Frame ratesetting----------------------------------//
-   writecommand (0xb2);
+   writecommand (ILI9341_FRMCTR2);
    writedata(0x0c);
    writedata(0x0c);
    writedata(0x00);
    writedata(0x33);
    writedata(0x33);
+
    writecommand (0xb7);
    writedata(0x35); 
    writecommand (0xbb);
@@ -231,8 +224,9 @@
    writecommand (0xd0);
    writedata(0xa4);
    writedata(0xa1);
+   
    //--------------------------------ST7789V gammasetting--------------------------------------//
-   writecommand (0xe0);
+   writecommand (ILI9341_GMCTRP1);
    writedata(0xd0);
    writedata(0x08);
    writedata(0x11);
@@ -247,7 +241,7 @@
    writedata(0x14);
    writedata(0x29);
    writedata(0x2d);
-   writecommand (0xe1);
+   writecommand (ILI9341_GMCTRN1);
    writedata(0xd0);
    writedata(0x08);
    writedata(0x10);
@@ -262,7 +256,7 @@
    writedata(0x14);
    writedata(0x2f);
    writedata(0x31);
-   writecommand (0x29);
+   writecommand (ILI9341_DISPON);
  }
  
  
@@ -840,7 +834,6 @@
        spiwrite(bg >> 8);
        spiwrite(bg);
      }
-     *csport |= cspinmask;
    }
    else
    {
@@ -882,7 +875,6 @@
  {
    spi_begin();
    setAddrWindow(x0, y0, x1, y1);
-   *csport |= cspinmask;
    spi_end();
  }
  
@@ -901,7 +893,6 @@
  
    // Column addr set
    *dcport &= ~dcpinmask;
-   *csport &= ~cspinmask;
  
    spiwrite(ILI9341_CASET);
  
@@ -998,9 +989,7 @@
    // Faster range checking, possible because x and y are unsigned
    if ((x >= _width) || (y >= _height)) return;
    spi_begin();
- 
-   *csport &= ~cspinmask;
- 
+
  if (addr_col != x) {
    uint8_t buffC[] = { (uint8_t) (x >> 8), (uint8_t) x, (uint8_t) (x >> 8), (uint8_t) x };
  
@@ -1047,9 +1036,7 @@
    win_xe=x;
    spiwrite(color);
    win_ye=y;
- 
-   *csport |= cspinmask;
- 
+  
    spi_end();
  }
  
@@ -1189,14 +1176,10 @@
  void TFT_ILI9341_ESP::pushColor(uint16_t color)
  {
    spi_begin();
- 
-   *csport &= ~cspinmask;
- 
+  
    spiwrite(color>>8);
    spiwrite(color);
- 
-   *csport |= cspinmask;
- 
+  
    spi_end();
  }
  
@@ -1207,15 +1190,11 @@
  void TFT_ILI9341_ESP::pushColor(uint16_t color, uint16_t len)
  {
    spi_begin();
- 
-   *csport &= ~cspinmask;
- 
+  
    uint8_t colorBin[] = { (uint8_t) (color >> 8), (uint8_t) color };
    while(len>32) { _SPI->writePattern(&colorBin[0], 2, 32); len-=32;}
    _SPI->writePattern(&colorBin[0], 2, len);
- 
-   *csport |= cspinmask;
- 
+  
    spi_end();
  }
  
@@ -1232,17 +1211,13 @@
  {
    uint16_t color;
    spi_begin();
- 
-   *csport &= ~cspinmask;
- 
+  
    while (len--) {
      color = *(data++);
      spiwrite(color >> 8);
      spiwrite(color);
    }
- 
-   *csport |= cspinmask;
- 
+  
    spi_end();
  }
  
@@ -1256,13 +1231,9 @@
  {
    spi_begin();
    len = len<<1;
- 
-   *csport &= ~cspinmask;
- 
+  
    while (len--) spiwrite(*(data++));
- 
-   *csport |= cspinmask;
- 
+  
    spi_end();
  }
  
@@ -1340,9 +1311,7 @@
    uint8_t colorBin[] = { (uint8_t) (color >> 8), (uint8_t) color };
    //while(h>32) { _SPI->writePattern(&colorBin[0], 2, 32); h-=32;}
    _SPI->writePattern(&colorBin[0], 2, h);
- 
-   *csport |= cspinmask;
- 
+  
    spi_end();
  }
  
@@ -1363,9 +1332,7 @@
    uint8_t colorBin[] = { (uint8_t) (color >> 8), (uint8_t) color };
    //while(w>32) { _SPI->writePattern(&colorBin[0], 2, 32); w-=32;}
    _SPI->writePattern(&colorBin[0], 2, w);
- 
-   *csport |= cspinmask;
- 
+  
    spi_end();
  }
  
@@ -1387,9 +1354,7 @@
    uint32_t n = (uint32_t)w * (uint32_t)h;
    //while(n>32) { _SPI->writePattern(&colorBin[0], 2, 32); n-=32;}
    _SPI->writePattern(&colorBin[0], 2, n);
- 
-   *csport |= cspinmask;
- 
+  
    spi_end();
  }
  
@@ -1673,8 +1638,7 @@
          pY += textsize;
        }
  
-       *csport |= cspinmask;
-       spi_end();
+        spi_end();
      }
    }
  
@@ -1744,7 +1708,6 @@
          }
        }
  
-       *csport |= cspinmask;
        spi_end();
      }
      else // Text colour != background && textsize = 1
@@ -1772,7 +1735,6 @@
            _SPI->writePattern(&textbgcolorBin[0], 2, line);
          }
        }
-       *csport |= cspinmask;
        spi_end();
      }
    }

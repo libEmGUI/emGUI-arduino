@@ -10,6 +10,8 @@
 #define F_WRP(const_char_p) (String(F(const_char_p)).c_str()) 
 #endif
 
+#if __cplusplus >= 201103L
 #include "emGUI/emGUI.hpp"
+#endif
 
 #endif

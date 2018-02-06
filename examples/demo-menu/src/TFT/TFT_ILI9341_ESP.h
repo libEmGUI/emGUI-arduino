@@ -16,7 +16,7 @@
  ****************************************************/
 
 // Include header file that defines the fonts loaded and the pins to be used
-#include "User_Setup.h"
+#include "../../User_Setup.h"
 
 // Stop fonts being loaded multiple times
 #ifndef _TFT_ILI9341_ESPH_
@@ -93,7 +93,7 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 // Change the width and height if required (defined in portrait mode)
 // or use the constructor to over-ride defaults
 #define ILI9341_TFTWIDTH  240
-#define ILI9341_TFTHEIGHT 240
+#define ILI9341_TFTHEIGHT 320
 
 #define ILI9341_INIT_DELAY 0x80
 
@@ -357,10 +357,8 @@ class TFT_ILI9341_ESP : public Print {
 inline void spi_begin() __attribute__((always_inline));
 inline void spi_end() __attribute__((always_inline));
 
-  boolean  hwSPI;
-
-  volatile uint32_t *mosiport, *clkport, *dcport, *rsport, *csport;
-  int32_t  _cs, _dc, _rst, _mosi, _miso, _sclk;
+  volatile uint32_t *dcport, *rsport;
+  int32_t   _dc;
   uint32_t  mosipinmask, clkpinmask, cspinmask, dcpinmask;
 
   uint8_t  mySPCR, savedSPCR;
