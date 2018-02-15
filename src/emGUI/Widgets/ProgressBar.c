@@ -35,7 +35,7 @@
 #include <stdio.h>
   #include "Draw/Draw.h"
 
-static char *pcBarText = "Выполнено";
+static char *pcBarText = "Р’С‹РїРѕР»РЅРµРЅРѕ";
 
 static bool prvDraw(xWidget *pxW){
   xProgressBarProps *xP;

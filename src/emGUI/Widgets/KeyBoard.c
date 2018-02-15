@@ -31,8 +31,8 @@ static const u16 usKeyWidth = 25;
 static const u16 usKeyHeight = 25;
 
 static const char cpcNums[] = "1234567890";
-static const char cpcLetters[LETERS_ROW_COUNT][MAX_KEY_COUNT + 1] = {"éöóêåíãøùç:;", "ôûâàïðîëäæ!?", "ÿ÷ñìèòüáþúýõ", ".,-"};
-static const char cpcLettersUp[LETERS_ROW_COUNT][MAX_KEY_COUNT + 1] = {"ÉÖÓÊÅÍÃØÙÇ:;", "ÔÛÂÀÏÐÎËÄÆ!?", "ß×ÑÌÈÒÜÁÞÚÝÕ", ".,-"};
+static const char cpcLetters[LETERS_ROW_COUNT][MAX_KEY_COUNT + 1] = {"Ð¹Ñ†ÑƒÐºÐµÐ½Ð³ÑˆÑ‰Ð·:;", "Ñ„Ñ‹Ð²Ð°Ð¿Ñ€Ð¾Ð»Ð´Ð¶!?", "ÑÑ‡ÑÐ¼Ð¸Ñ‚ÑŒÐ±ÑŽÑŠÑÑ…", ".,-"};
+static const char cpcLettersUp[LETERS_ROW_COUNT][MAX_KEY_COUNT + 1] = {"Ð™Ð¦Ð£ÐšÐ•ÐÐ“Ð¨Ð©Ð—:;", "Ð¤Ð«Ð’ÐÐŸÐ ÐžÐ›Ð”Ð–!?", "Ð¯Ð§Ð¡ÐœÐ˜Ð¢Ð¬Ð‘Ð®ÐªÐ­Ð¥", ".,-"};
 static const char cpcSpace[2] = " ";
 static const char cpcBackSpace[2] = {8,0}; //char numbers from font16.c
 static const char cpcShift[2] = {7,0};
@@ -62,7 +62,7 @@ xWidget* pxKeyBoardCreate(u16 usX, u16 usY, u16 usKeyLineColor, u16 usKeyBcgColo
   usYR+= usWidgetGetH(xP->pxWBackSpace);
 // Letters Keys
   for(int i = 0; i < LETERS_ROW_COUNT; ++i){
-    if (i == LETERS_ROW_COUNT - 1) // îòñòóï äëÿ êëàâèøè Clear â ïîñëåäíåì ðÿäó
+    if (i == LETERS_ROW_COUNT - 1) // Ð¾Ñ‚ÑÑ‚ÑƒÐ¿ Ð´Ð»Ñ ÐºÐ»Ð°Ð²Ð¸ÑˆÐ¸ Clear Ð² Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ¼ Ñ€ÑÐ´Ñƒ
       usXR+= usKeyWidth;
     xP->pxWLettersRow[i] = pxKeyRowCreate(usXR, usYR, usKeyHeight, usKeyWidth, strlen(cpcLetters[i]),
                                           cpcLetters[i], usKeyLineColor, usKeyBcgColor, pxW);
@@ -118,7 +118,7 @@ void vOnKeyRowPress(xWidget *pxKRow, char cPress){
 
   xKeyBoardProp *pxKBoardProp;
   if ((pxKBoardProp = pxWidgetGetProps(pxKRow->pxParent, WidgetKeyBoard))){
-// îáðàáîòêà Shift:
+// Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Shift:
     if (pxKRow == pxKBoardProp->pxWShift){
       if (prvKeyBoardSetUpLetters(pxKRow->pxParent))
         bShiftIsPressed = (bShiftIsPressed)?FALSE:TRUE;

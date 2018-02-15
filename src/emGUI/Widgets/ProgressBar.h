@@ -36,7 +36,7 @@ typedef xWidget xProgressBar;
 
 typedef struct xProgressBarProps_t{
   u16 usBarColor;
-  u16 usExProc;   // проценты выполненно
+  u16 usExProc;   // РїСЂРѕС†РµРЅС‚С‹ РІС‹РїРѕР»РЅРµРЅРЅРѕ
   xLabel *pxBarLabel;
 } xProgressBarProps;
 

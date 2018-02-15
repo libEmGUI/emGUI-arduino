@@ -36,9 +36,9 @@ typedef xWidget xKeyRow;
 typedef struct xKeyRowProp_t{
   u16 usKeyCount;
   u16 usKeyWidth;
-  u16 usKeyHeight; // высоту хранить не надо? - она есть в виджете и постоянна
+  u16 usKeyHeight; // РІС‹СЃРѕС‚Сѓ С…СЂР°РЅРёС‚СЊ РЅРµ РЅР°РґРѕ? - РѕРЅР° РµСЃС‚СЊ РІ РІРёРґР¶РµС‚Рµ Рё РїРѕСЃС‚РѕСЏРЅРЅР°
   const char *pcKeys;
-  u16 usKeyClicked;    // порядковый номер клавишы с событием клик
+  u16 usKeyClicked;    // РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ РєР»Р°РІРёС€С‹ СЃ СЃРѕР±С‹С‚РёРµРј РєР»РёРє
   u16 usKeyLinesColor;
   void (*prvOnKeyPress)(xWidget*, char);
 } xKeyRowProp;

@@ -129,7 +129,7 @@ bool bPictureStackAddItem(xWidget *pxW, xPicture xPic){
   if(xP->cItemCount == PICTURE_STACK_MAX_SIZE)
     return FALSE;
   
-  //Íàõîäèì ïîñëåäíèé ýëåìåíò â ñïèñêå
+  //ÐÐ°Ñ…Ð¾Ð´Ð¸Ð¼ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ð² ÑÐ¿Ð¸ÑÐºÐµ
   xNext = xP->xItems;
 
   while(xNext){

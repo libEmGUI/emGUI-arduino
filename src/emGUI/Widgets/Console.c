@@ -100,7 +100,7 @@ bool prvDraw(xConsole *pxW){
     
     vFramebufferScroll(xP->usScroll);
     
-    //Был перенос строки
+    //Р‘С‹Р» РїРµСЂРµРЅРѕСЃ СЃС‚СЂРѕРєРё
     if(bClearRow){
       usX = xP->ucCaretX * CHAR_PLACE_WIDTH + pxW->usX0;
       usY = xP->ucCaretY * CHAR_PLACE_HEIGHT + pxW->usY0;
@@ -175,7 +175,7 @@ xConsole * pxConsoleCreate(){
     return NULL;  //Console is singleton ATM.
   
   if(!xConsoleWnd)
-    return NULL;  //У консоли всегда должен быть родитель. Пока должен быть.
+    return NULL;  //РЈ РєРѕРЅСЃРѕР»Рё РІСЃРµРіРґР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂРѕРґРёС‚РµР»СЊ. РџРѕРєР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ.
   
   pxW = pxWidgetAlloc();
   
