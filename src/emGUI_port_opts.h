@@ -15,6 +15,10 @@
 
 #include <gfxfont.h>
 
+typedef struct {
+	GFXfont *regions[];
+}UTF8Font;
+
 #define EMGUI_XPICTURE_TYPE  const char*
 #define EMGUI_XFONT_TYPE const GFXfont *
 
