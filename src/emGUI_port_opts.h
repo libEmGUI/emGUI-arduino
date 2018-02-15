@@ -14,7 +14,7 @@
 #endif
 
 // if you set this options, all fonts should be returned as null-terminated array!
-// i.e. {font_region_1, font_region_2, NULL}
+// i.e. const GFXfont * bigFont[] = { &FreeSans24pt7b , &MyriadPro_Regular24pt8b, NULL };
 
 #ifndef EMGUI_USE_UTF8_FONTS
 #define EMGUI_USE_UTF8_FONTS    0   
@@ -22,7 +22,12 @@
 
 #include <gfxfont.h> // if using UTF8 fonts, Adafruit-GFX should be updated to use uint16 char ranges
 
+#if EMGUI_USE_UTF8_FONTS
+#define EMGUI_XFONT_TYPE const GFXfont **
+#else
 #define EMGUI_XFONT_TYPE const GFXfont *
+#endif // EMGUI_USE_UTF8_FONTS
+
 #define EMGUI_XPICTURE_TYPE  const char*
 
 #endif // !ARDIUNO_OPTS_H
