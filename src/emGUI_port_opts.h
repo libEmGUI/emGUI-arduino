@@ -13,15 +13,16 @@
  #define PROGMEM
 #endif
 
-#include <gfxfont.h>
+// if you set this options, all fonts should be returned as null-terminated array!
+// i.e. {font_region_1, font_region_2, NULL}
 
-typedef struct {
-	GFXfont *regions[];
-}UTF8Font;
+#ifndef EMGUI_USE_UTF8_FONTS
+#define EMGUI_USE_UTF8_FONTS    0   
+#endif 
 
-#define EMGUI_XPICTURE_TYPE  const char*
+#include <gfxfont.h> // if using UTF8 fonts, Adafruit-GFX should be updated to use uint16 char ranges
+
 #define EMGUI_XFONT_TYPE const GFXfont *
-
-#define EM_GUI_PICTURE_STORAGE_ATTR PROGMEM
+#define EMGUI_XPICTURE_TYPE  const char*
 
 #endif // !ARDIUNO_OPTS_H
