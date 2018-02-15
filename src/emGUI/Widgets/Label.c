@@ -43,8 +43,8 @@ typedef struct xLabelProps_t {
 	bool bIsMultiLine;
 	bool bHaveCursor;
 	char *pcPrvPage;
-	char *pcNxtPage;
-	char *pcCrntPage;
+	char *pcNextPage;
+	char *pcCurrentPage;
 	void(*onEditHandler)(void);
 } xLabelProps;
 
@@ -53,7 +53,7 @@ typedef struct xLabelProps_t {
 //if being print with pubFont and aligned with eHorAlign
 //puXLinePosition - offset of aligned line to print from
 
-static char* prvCountLine(char *pcLine, uint16_t uXFrom, uint16_t uXTo, uint16_t *puXLinePosition,
+static char* prvGetLine(char *pcLine, uint16_t uXFrom, uint16_t uXTo, uint16_t *puXLinePosition,
 	xFont pubFont, eLabelTextAlign eHorAlign) {
 
 	if (!pcLine || uXTo <= uXFrom)
@@ -132,7 +132,7 @@ static void prvPrintLine(char *pcLine, uint16_t uCharCount, uint16_t uXFrom, uin
 	}
 }
 
-static char *prvCountPage(char *pcPage, uint16_t uXFrom, uint16_t uXTo, uint16_t uYFrom, uint16_t uYTo, uint16_t *puYPosition, uint16_t *puLineCount,
+static char *prvGetPage(char *pcPage, uint16_t uXFrom, uint16_t uXTo, uint16_t uYFrom, uint16_t uYTo, uint16_t *puYPosition, uint16_t *puLineCount,
 	xFont pubFont, eLabelTextAlign eHorAlign, eLabelVerticalAlign eVerAlign) {
 	char *pcNxtLine;
 	uint16_t uYBefor;
@@ -140,7 +140,7 @@ static char *prvCountPage(char *pcPage, uint16_t uXFrom, uint16_t uXTo, uint16_t
 	pcNxtLine = pcPage;
 	*puLineCount = 0;
 	while ((uYBefor + pxDrawHDL()->usFontGetH(pubFont)) <= uYTo && pcNxtLine) {
-		pcNxtLine = prvCountLine(pcNxtLine, uXFrom, uXTo, NULL, pubFont, eHorAlign);
+		pcNxtLine = prvGetLine(pcNxtLine, uXFrom, uXTo, NULL, pubFont, eHorAlign);
 		uYBefor += pxDrawHDL()->usFontGetH(pubFont);
 		if (puLineCount)
 			(*puLineCount)++;
@@ -167,7 +167,7 @@ static void prvPrintPage(char *pcPage, uint16_t uXFrom, uint16_t uXTo, uint16_t 
 	uint16_t uLineLen, uXPutLine;
 	pcCrntLine = pcPage;
 	while (pcCrntLine && uLineCount) {
-		pcNxtLine = prvCountLine(pcCrntLine, uXFrom, uXTo, &uXPutLine, pubFont, eHorAlign);
+		pcNxtLine = prvGetLine(pcCrntLine, uXFrom, uXTo, &uXPutLine, pubFont, eHorAlign);
 		uLineLen = pcNxtLine - pcCrntLine;
 		prvPrintLine(pcCrntLine, uLineLen, uXPutLine, uYFrom, pubFont, usColor, usBackground);
 		uYFrom += pxDrawHDL()->usFontGetH(pubFont);
@@ -194,15 +194,15 @@ static bool prvDraw(xWidget *pxW) {
 
 	bWidgetDrawHandler(pxW);
 
-	xP->pcNxtPage = prvCountPage(xP->pcCrntPage, pxW->usX0, pxW->usX1 + 1, pxW->usY0, pxW->usY1 + 1, &uY, &uLineCount,
+	xP->pcNextPage = prvGetPage(xP->pcCurrentPage, pxW->usX0, pxW->usX1 + 1, pxW->usY0, pxW->usY1 + 1, &uY, &uLineCount,
 		xP->xFnt, xP->eTextAlign, xP->eVerticalAlign);
-	prvPrintPage(xP->pcCrntPage, pxW->usX0, pxW->usX1 + 1, uY, uLineCount, xP->eTextAlign,
+	prvPrintPage(xP->pcCurrentPage, pxW->usX0, pxW->usX1 + 1, uY, uLineCount, xP->eTextAlign,
 		xP->xFnt, xP->usColor, pxW->usBgColor);
 
 	return true;
 }
 
-static void prvSetPrvPgPntr(xLabel *pxW) {
+static void prvSetPrevPagePointer(xLabel *pxW) {
 	char *pcPageCount;
 	xLabelProps *xP = (xLabelProps *)pxWidgetGetProps(pxW, WidgetLabel);
 	if (!xP)
@@ -210,9 +210,9 @@ static void prvSetPrvPgPntr(xLabel *pxW) {
 	
 	xP->pcPrvPage = NULL;
 	pcPageCount = xP->pcStr;
-	while (pcPageCount != xP->pcCrntPage) {
+	while (pcPageCount != xP->pcCurrentPage) {
 		xP->pcPrvPage = pcPageCount;
-		pcPageCount = prvCountPage(pcPageCount, pxW->usX0, pxW->usX1 + 1, pxW->usY0, pxW->usY1 + 1, NULL, NULL,
+		pcPageCount = prvGetPage(pcPageCount, pxW->usX0, pxW->usX1 + 1, pxW->usY0, pxW->usY1 + 1, NULL, NULL,
 			xP->xFnt, xP->eTextAlign, xP->eVerticalAlign);
 	}
 }
@@ -221,8 +221,8 @@ bool bLabelDrawNextPage(xLabel *pxW) {
 	xLabelProps *xP = (xLabelProps *)pxWidgetGetProps(pxW, WidgetLabel);
 	if (!xP)
 		return false;
-	if (xP->pcNxtPage) {
-		xP->pcCrntPage = xP->pcNxtPage;
+	if (xP->pcNextPage) {
+		xP->pcCurrentPage = xP->pcNextPage;
 		vWidgetInvalidate(pxW);
 		return true;
 	}
@@ -233,9 +233,9 @@ bool bLabelDrawPrevPage(xLabel *pxW) {
 	xLabelProps *xP = (xLabelProps *)pxWidgetGetProps(pxW, WidgetLabel);
 	if (!xP)
 		return false;
-	prvSetPrvPgPntr(pxW);
+	prvSetPrevPagePointer(pxW);
 	if (xP->pcPrvPage) {
-		xP->pcCrntPage = xP->pcPrvPage;
+		xP->pcCurrentPage = xP->pcPrvPage;
 		vWidgetInvalidate(pxW);
 		return true;
 	}
@@ -322,7 +322,7 @@ xLabel * pxLabelCreate(uint16_t usX, uint16_t usY, uint16_t usW, uint16_t usH, c
 			xP->pcStr[usMaxLength - 1] = '\0';
 		}
 
-		xP->pcCrntPage = xP->pcStr;
+		xP->pcCurrentPage = xP->pcStr;
 		pxW->pxDrawHandler = prvDraw;
 
 		return pxW;
@@ -355,8 +355,8 @@ char * pcLabelSetText(xWidget *pxW, const char * pcStr) {
 	else
 		xP->pcStr = (char*)pcStr;
 
-	xP->pcCrntPage = xP->pcStr;
-	xP->pcNxtPage = xP->pcPrvPage = NULL;
+	xP->pcCurrentPage = xP->pcStr;
+	xP->pcNextPage = xP->pcPrvPage = NULL;
 
 	vWidgetInvalidate(pxW);
 	return NULL;
@@ -437,8 +437,8 @@ void vLabelSetVerticalAlign(xWidget *pxW, eLabelVerticalAlign eAlign) {
 	xP->pcStr = pStr;
 	xP->usMaxLength = usMaxLength;
 
-	xP->pcCrntPage = xP->pcStr;
-	xP->pcPrvPage = xP->pcNxtPage = NULL;
+	xP->pcCurrentPage = xP->pcStr;
+	xP->pcPrvPage = xP->pcNextPage = NULL;
 
 	vWidgetInvalidate(pxW);
 }*/
@@ -495,8 +495,8 @@ bool bLabelSetMaxLength(xLabel *pxW, size_t uiMaxLength, eLabelMaxLenModificator
 
 	xP->pcStr = malloc(uiMaxLength);
 
-	xP->pcCrntPage = xP->pcStr;
-	xP->pcNxtPage = xP->pcPrvPage = NULL;
+	xP->pcCurrentPage = xP->pcStr;
+	xP->pcNextPage = xP->pcPrvPage = NULL;
 
 	if (!xP->pcStr) {
 		xP->usMaxLength = 0;
