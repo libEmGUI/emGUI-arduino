@@ -48,61 +48,80 @@ typedef struct xLabelProps_t {
 	void(*onEditHandler)(void);
 } xLabelProps;
 
+
+//gets portion of line from pcLine that can fit between uXFrom and uXTo position
+//if being print with pubFont and aligned with eHorAlign
+//puXLinePosition - offset of aligned line to print from
+
 static char* prvCountLine(char *pcLine, uint16_t uXFrom, uint16_t uXTo, uint16_t *puXLinePosition,
 	xFont pubFont, eLabelTextAlign eHorAlign) {
-	uint16_t uXBefor, uMaxLineLen, uXSeparator;
-	char *pcSeparator, *pcCharCount;
 
 	if (!pcLine || uXTo <= uXFrom)
 		return NULL;
 
-	uMaxLineLen = (uint16_t)strlen(pcLine);
-	pcSeparator = NULL;
-	pcCharCount = pcLine;
-	uXBefor = uXFrom;
-	uXSeparator = uXBefor;
+	uint16_t uMaxLineLen = (uint16_t)strlen(pcLine);
+	char * pcDelimiter = NULL; //pointer to word break character
+	char * pcChar = pcLine;
+	uint16_t uXCursor = uXFrom;
+	uint16_t uXCursorDelimiter = uXCursor;
 
-	while ((uXBefor + pxDrawHDL()->ucFontGetCharW(*pcCharCount, pubFont)) <= uXTo && uMaxLineLen) {
-		if (((*pcCharCount == ' ' || *pcCharCount == '\t') && pcCharCount != pcLine) // delimiter won't be the first symbol
-			|| *pcCharCount == '\n') {
-			pcSeparator = pcCharCount;
-			uXSeparator = uXBefor; // temporary storage in case we have to 
-		}                          // rewind to  pcSeparator
-		if (*pcCharCount == '\n')
+	while (uMaxLineLen) {
+		char c = *pcChar;
+
+		if (c == '\t') //TODO: fix \t printing
+			c = ' '; // treat tab as space
+
+		uint16_t charWidth = pxDrawHDL()->ucFontGetCharW(c, pubFont);
+		
+		if ((uXCursor + charWidth) >= uXTo)
 			break;
-		if (*pcCharCount == '\t')
-			*pcCharCount = ' ';
-		uXBefor += pxDrawHDL()->ucFontGetCharW(*pcCharCount, pubFont);
-		++pcCharCount;
+
+		if (pcChar != pcLine && ((c == ' ' || c == '\t') ) // delimiter can't be the first symbol
+			|| c == '\n') { // but if this line is single \n, treat it as delimiter to allow draw empty line
+			pcDelimiter = pcChar;
+			uXCursorDelimiter = uXCursor; // temporary storage in case we have to 
+		}                          // rewind to  pcDelimiter
+
+		if (c == '\n') //line ended before we reached uXTo
+			break;
+
+		uXCursor += charWidth;
+		++pcChar;
 		--uMaxLineLen;
 	}
 
-	if (pcSeparator && uMaxLineLen) // if we have to break line by separator, we have to update uXBefor too
-		uXBefor = uXSeparator;
+	if (pcDelimiter && uMaxLineLen) // if we have to break line by delimiter, we have to update uXCursor too
+		uXCursor = uXCursorDelimiter;
 
-	if (puXLinePosition)
+	if (puXLinePosition) { //alingn line in uXFrom -> uXTo frame
 		switch (eHorAlign) {
 		case LABEL_ALIGN_CENTER:
-			*puXLinePosition = uXFrom + (uXTo - uXBefor) / 2;
+			*puXLinePosition = uXFrom + (uXTo - uXCursor) / 2;
 			break;
 		case LABEL_ALIGN_RIGHT:
-			*puXLinePosition = uXFrom + (uXTo - uXBefor);
+			*puXLinePosition = uXFrom + (uXTo - uXCursor);
 			break;
 		default:
 			*puXLinePosition = uXFrom;
 			break;
 		}
+	}
 
-	if (!uMaxLineLen || !(*pcCharCount))
+	if (!uMaxLineLen || !(*pcChar))
 		return NULL;
 
-	return !pcSeparator ? pcCharCount : pcSeparator == '\0' ? pcSeparator : pcSeparator + 1;
+	if (!pcDelimiter)
+		return pcChar; // just break the word
+
+	if (pcDelimiter == '\0') //if this is the EOL, return it
+		return pcDelimiter;
+
+	return pcDelimiter + 1; //otherwise, return a character next to delimiter
 }
 
 static void prvPrintLine(char *pcLine, uint16_t uCharCount, uint16_t uXFrom, uint16_t uY,
 	xFont pubFont, uint16_t usColor, uint16_t usBackground) {
-	char *pcCharacter;
-	pcCharacter = pcLine;
+	char *pcCharacter = pcLine;
 
 	while (*pcCharacter && uCharCount) {
 		if (*pcCharacter != '\n')
@@ -487,7 +506,7 @@ bool bLabelSetMaxLength(xLabel *pxW, size_t uiMaxLength, eLabelMaxLenModificator
 	xP->pcStr[uiMaxLength - 1] = 0;
 	xP->pcStr[0] = 0;
 
-	xP->usMaxLength = uiMaxLength;
+	xP->usMaxLength = (uint16_t) uiMaxLength;
 
 	return true;
 }
