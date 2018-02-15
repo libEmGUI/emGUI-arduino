@@ -89,14 +89,6 @@ static bool prvButtonCheckTSRoutine(xButton *pxW, xTouchEvent *pxTouchScreenEv) 
 	return touch;
 }
 
-static bool prvLabelOnClick(xWidget * pxW) {
-	if (!pxW)
-		return false;
-
-	pxW->pxParent->pxOnClick(pxW->pxParent);
-	return true;
-}
-
 static xButton * prvAlloc() {
 	xButton *pxW;
 	xButtonProps *xP;
