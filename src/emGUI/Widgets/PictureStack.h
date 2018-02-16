@@ -43,16 +43,18 @@ xPictureStackItem *pxNext;
 };
 
 typedef struct xPictureStackProps_t {
-char cItemNumber;
-char cItemCount;
-xPictureStackItem *xItems;
+	char cItemNumber;
+	char cItemCount;
+	bool bDisposable;
+	WidgetEvent pxOnDispose;
+	xPictureStackItem *xItems;
 } xPictureStackProps;
 
 xPictureStack * pxPictureStackCreate(uint16_t usX, uint16_t usY, xPicture xPic, xWidget *pxWidParent);
 bool            bPictureStackSelect(xWidget *pxW, char cItemNumber);
 bool            bPictureStackAddItem(xWidget *pxW, xPicture xPic);
 xPicture        xPictureStackGetItem(xWidget *pxW, char cItemNumber);
-  
+bool			bPictureStackClose(xPictureStack *pxW);
 #ifdef __cplusplus
 }
 #endif

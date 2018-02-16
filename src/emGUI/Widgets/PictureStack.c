@@ -44,6 +44,38 @@ bool static prvDraw(xPictureStack *pxW){
   return true;
 }
 
+static bool prvDispose(xPictureStack * pxW) {
+	xPictureStackProps *xP;
+	xPictureStackItem *xI;
+	xPictureStackItem *xNext;
+
+	if (!pxW)
+		return false;
+
+	if (pxW->eType != WidgetPictureStack)
+		return false;
+
+	xP = pxW->pvProp;
+
+
+	//Находим последний элемент в списке
+	xNext = xP->xItems;
+	xI = xNext;
+	while (xNext) {
+		xI = xNext;
+		xNext = xI->pxNext;
+		free(xI);
+	}
+
+	/*if (xP->pxOnDispose)
+		xP->pxOnDispose(pxW);*/
+
+	xI->pxNext = NULL;
+	xP->cItemCount = 0;
+
+	return true;
+}
+
 xPictureStack *pxPictureStackCreate(uint16_t usX, uint16_t usY, xPicture xPic, xWidget *pxWidParent){
   xPictureStack *pxW;
   xPictureStackProps *xP;
@@ -70,7 +102,8 @@ xPictureStack *pxPictureStackCreate(uint16_t usX, uint16_t usY, xPicture xPic, x
 	memset(xP, 0, sizeof(xPictureStackProps));
     xP->cItemNumber = 0;
     xP->cItemCount = 1;
-
+	pxW->pxOnDispose = prvDispose;
+	xP->bDisposable = true;
     xP->xItems = xI;
     
     pxW->pvProp = xP;
@@ -176,3 +209,16 @@ xPicture xPictureStackGetItem(xWidget *pxW, char cItemNumber){
   return xI->xPic;
 }
 
+bool bPictureStackClose(xPictureStack *pxW) {
+	xPictureStackProps *xP;
+	if (!(xP = (xPictureStackProps*)pxWidgetGetProps(pxW, WidgetPictureStack)))
+		return false;
+
+
+	vWidgetHide(pxW);
+
+	if (xP->bDisposable)
+		vWidgetDispose(pxW);
+
+	return true;
+}
