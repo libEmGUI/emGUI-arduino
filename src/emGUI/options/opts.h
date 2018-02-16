@@ -26,6 +26,11 @@ typedef EMGUI_XFONT_TYPE			xFont; //TODO: Add GFXFont segmented struct to allow 
 #define EMGUI_MODAL_WINDOW_ID		1000
 #endif
 
+// PictureStack
+#ifndef PICTURE_STACK_MAX_SIZE
+#define PICTURE_STACK_MAX_SIZE		10
+#endif
+
 // Dimensions
 
 #ifndef EMGUI_MODAL_DLG_BTN_SPACING

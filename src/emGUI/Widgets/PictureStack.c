@@ -21,53 +21,50 @@
 	
 	Created on: 24.12.2012
 */
-#ifdef EMGUI_USE_PICTURE_STACK_C
 
 #include "PictureStack.h"
 #include "StatusBar.h"
-#include "PictureStorage.h"
-#include "framebuffer.h"
-#include "Memory.h"
+#include "emGUI/Draw/Draw.h"
 
 bool static prvDraw(xPictureStack *pxW){
   xPictureStackProps *xP;
   
   if(!pxW)
-    return FALSE;
+    return false;
   
   if(pxW->eType != WidgetPictureStack)
-    return FALSE;
+    return false;
   
   if(pxW->bValid)
-    return FALSE;
+    return false;
   
   xP = pxW->pvProp;
   
-  bFramebufferPicture(pxW->usX0, pxW->usY0, xPictureStackGetItem(pxW, xP->cItemNumber));
-  return TRUE;
+  pxDrawHDL()->bPicture(pxW->usX0, pxW->usY0, xPictureStackGetItem(pxW, xP->cItemNumber));
+  return true;
 }
 
-xPictureStack *pxPictureStackCreate(u16 usX, u16 usY, xPicture xPic, xWidget *pxWidParent){
+xPictureStack *pxPictureStackCreate(uint16_t usX, uint16_t usY, xPicture xPic, xWidget *pxWidParent){
   xPictureStack *pxW;
   xPictureStackProps *xP;
   xPictureStackItem *xI;
   
-  pxW = pvMemoryMalloc(sizeof(xWidget), MEMORY_EXT);
-  
-  if(bWidgetInit(pxW, usX, usY, 1, 1, pxWidParent, TRUE)){
+  pxW = malloc(sizeof(xWidget));
+  memset(pxW, 0, sizeof(xWidget));
+  if(bWidgetInit(pxW, usX, usY, 1, 1, pxWidParent, true)){
     
-    bWidgetSetBgPicture(pxW, xPic);
-    
-    xI = pvMemoryMalloc(sizeof(xPictureStackItem), MEMORY_EXT);
+	bWidgetSetBgPicture(pxW, xPic);
 
+	xI = malloc(sizeof(xPictureStackItem));
+	memset(pxW, 0, sizeof(xPictureStackItem));
     if(!xI)
       return NULL;
 
     xI->xPic = xPic;
     xI->pxNext = NULL;
 
-    xP = pvMemoryMalloc(sizeof(xPictureStackProps), MEMORY_EXT);
-    
+    xP = malloc(sizeof(xPictureStackProps));
+	memset(pxW, 0, sizeof(xPictureStackProps));
     if(!xP)
       return NULL;
 
@@ -85,7 +82,7 @@ xPictureStack *pxPictureStackCreate(u16 usX, u16 usY, xPicture xPic, xWidget *px
     return pxW;
   }
   else{
-    vMemoryFree(pxW);
+    free(pxW);
     return NULL;
   }
 }
@@ -94,23 +91,23 @@ bool bPictureStackSelect(xWidget *pxW, char cItemNumber){
   xPictureStackProps *xP;
   
   if(!pxW)
-    return FALSE;
+    return false;
   
   if(pxW->eType != WidgetPictureStack)
-    return FALSE;
+    return false;
   
   xP = pxW->pvProp;
   
   if(cItemNumber >= xP->cItemCount)
-    return FALSE;
+    return false;
   
   if(cItemNumber == xP->cItemNumber)
-    return TRUE;
+    return true;
   
   xP->cItemNumber = cItemNumber;
   vWidgetInvalidate(pxW);
   
-  return TRUE;
+  return true;
 }
 
 bool bPictureStackAddItem(xWidget *pxW, xPicture xPic){
@@ -119,26 +116,26 @@ bool bPictureStackAddItem(xWidget *pxW, xPicture xPic){
   xPictureStackItem *xNext;
   
   if(!pxW)
-    return FALSE;
+    return false;
   
   if(pxW->eType != WidgetPictureStack)
-    return FALSE;
+    return false;
   
   xP = pxW->pvProp;
   
   if(xP->cItemCount == PICTURE_STACK_MAX_SIZE)
-    return FALSE;
+    return false;
   
   //Находим последний элемент в списке
   xNext = xP->xItems;
-
+  xI = xNext;
   while(xNext){
     xI = xNext;
     xNext = xI->pxNext;
   }
 
   //Allocate memory for new Item
-  xNext = pvMemoryMalloc(sizeof(xPictureStackItem), MEMORY_EXT);
+  xNext = malloc(sizeof(xPictureStackItem));
 
   if(!xNext)
     return NULL;
@@ -150,7 +147,7 @@ bool bPictureStackAddItem(xWidget *pxW, xPicture xPic){
   xI->pxNext = xNext;
   xP->cItemCount++;
 
-  return TRUE;
+  return true;
 }
 
 xPicture xPictureStackGetItem(xWidget *pxW, char cItemNumber){
@@ -179,5 +176,3 @@ xPicture xPictureStackGetItem(xWidget *pxW, char cItemNumber){
   return xI->xPic;
 }
 
-
-#endif	//__PICTURE_STACK_C

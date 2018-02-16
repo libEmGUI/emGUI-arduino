@@ -13,4 +13,5 @@
 #include "Widgets/Button.h"
 #include "Widgets/ModalDialog.h"
 #include "Widgets/Plot.h"
+#include "Widgets/PictureStack.h"
 #endif // !EMGUI_H

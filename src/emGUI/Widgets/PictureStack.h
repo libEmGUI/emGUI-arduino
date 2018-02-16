@@ -24,42 +24,39 @@
 #ifndef EMGUI_PICTURE_STACK_H
 #define EMGUI_PICTURE_STACK_H
 
-#ifdef EMGUI_USE_PICTURE_STACK_C
 
 #ifdef __cplusplus
 extern "C" {
 #endif
   
 #include "Widget.h"
-#include "Charger.h"
-#include "PictureStorage.h"
 
-  #define PICTURE_STACK_MAX_SIZE 10
-  
-  typedef xWidget xPictureStack;
-  
-  typedef struct xPictureStackItem_t xPictureStackItem;
-  
-  struct xPictureStackItem_t {
-    xPicture xPic;
-    xPictureStackItem *pxNext;
-  };
 
-  typedef struct xPictureStackProps_t {
-    char cItemNumber;
-    char cItemCount;
-    xPictureStackItem *xItems;
-  } xPictureStackProps;
+  
+typedef xWidget xPictureStack;
+  
+typedef struct xPictureStackItem_t xPictureStackItem;
+  
+struct xPictureStackItem_t {
+xPicture xPic;
+xPictureStackItem *pxNext;
+};
 
-  xPictureStack * pxPictureStackCreate(u16 usX, u16 usY, xPicture xPic, xWidget *pxWidParent);
-  bool            bPictureStackSelect(xWidget *pxW, char cItemNumber);
-  bool            bPictureStackAddItem(xWidget *pxW, xPicture xPic);
-  xPicture        xPictureStackGetItem(xWidget *pxW, char cItemNumber);
+typedef struct xPictureStackProps_t {
+char cItemNumber;
+char cItemCount;
+xPictureStackItem *xItems;
+} xPictureStackProps;
+
+xPictureStack * pxPictureStackCreate(uint16_t usX, uint16_t usY, xPicture xPic, xWidget *pxWidParent);
+bool            bPictureStackSelect(xWidget *pxW, char cItemNumber);
+bool            bPictureStackAddItem(xWidget *pxW, xPicture xPic);
+xPicture        xPictureStackGetItem(xWidget *pxW, char cItemNumber);
   
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+
 
 #endif	//__PICTURE_STACK_H
