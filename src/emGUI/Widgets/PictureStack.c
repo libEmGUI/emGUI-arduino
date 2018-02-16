@@ -56,18 +56,18 @@ xPictureStack *pxPictureStackCreate(uint16_t usX, uint16_t usY, xPicture xPic, x
 	bWidgetSetBgPicture(pxW, xPic);
 
 	xI = malloc(sizeof(xPictureStackItem));
-	memset(pxW, 0, sizeof(xPictureStackItem));
+	
     if(!xI)
       return NULL;
-
+	memset(xI, 0, sizeof(xPictureStackItem));
     xI->xPic = xPic;
     xI->pxNext = NULL;
 
     xP = malloc(sizeof(xPictureStackProps));
-	memset(pxW, 0, sizeof(xPictureStackProps));
+	
     if(!xP)
       return NULL;
-
+	memset(xP, 0, sizeof(xPictureStackProps));
     xP->cItemNumber = 0;
     xP->cItemCount = 1;
 
