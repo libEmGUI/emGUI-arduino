@@ -25,6 +25,7 @@
 #include "PictureStack.h"
 #include "StatusBar.h"
 #include "emGUI/Draw/Draw.h"
+#include <stdlib.h> 
 
 bool static prvDraw(xPictureStack *pxW){
   xPictureStackProps *xP;
@@ -171,7 +172,7 @@ bool bPictureStackAddItem(xWidget *pxW, xPicture xPic){
   xNext = malloc(sizeof(xPictureStackItem));
 
   if(!xNext)
-    return NULL;
+    return false;
 
   xNext->xPic = xPic;
   xNext->pxNext = NULL;

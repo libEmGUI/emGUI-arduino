@@ -274,10 +274,3 @@ void vWindowManagerUpdateWindow() {
 void vWindowManagerSetKeypressHandler(WindowKeyPressEventHdl pxEvenHandler) {
 	pxKeypressHdl = pxEvenHandler;
 }
-
-xWindow* vWindowManagerCreateWindow(int eWnd) {
-	if (pxWindowManagerGetWindow(eWnd)) // window with such id is already created
-		return NULL;
-
-
-}
