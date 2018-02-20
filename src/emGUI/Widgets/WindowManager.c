@@ -98,6 +98,7 @@ xWindowManager * pxWindowManagerCreate(bool(*pxOnCreateHandler)(xWidget *)) {
 		if (pxOnCreateHandler)
 			pxOnCreateHandler(xWindowManagerInstance);
 	}
+	vWindowManagerInvalidate();
 	return xWindowManagerInstance;
 }
 
