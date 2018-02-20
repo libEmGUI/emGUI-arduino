@@ -63,13 +63,20 @@ namespace emGUI {
 				onToggle(this, _state);
 		}
 
+		bool state() {
+			return _state;
+		}
+
 		void click() {
 			if (onClick)
 				onClick(this);
-			_state = !_state;
+			
+			if (onToggle) {
+				if(onToggle(this, !_state))  // if there's a handler, toggle is done when it return true 
+					_state = !_state;
+			} else 
+				_state = !_state;
 			toggleDecorator();
-			if (onToggle)
-				onToggle(this, _state);
 		};
 
 		virtual void toggleDecorator() {
@@ -79,7 +86,7 @@ namespace emGUI {
 				vWidgetSetBgColor(get(), EMGUI_COLOR_GREEN, false);
 		}
 
-		std::function<void(ButtonToggle *b, bool)> onToggle;
+		std::function<bool(ButtonToggle *b, bool)> onToggle;
 		std::function<void(ButtonToggle *b)> onClick;
 	protected:
 		bool _state;
