@@ -176,7 +176,7 @@ static void prvPrintPage(char *pcPage, uint16_t uXFrom, uint16_t uXTo, uint16_t 
 	}
 }
 
-static bool prvDraw(xWidget *pxW) {
+bool bLabelDraw(xWidget *pxW) {
 	xLabelProps *xP;
 	uint16_t uY, uLineCount;
 
@@ -326,7 +326,7 @@ xLabel * pxLabelCreate(uint16_t usX, uint16_t usY, uint16_t usW, uint16_t usH, c
 		}
 
 		xP->pcCurrentPage = xP->pcStr;
-		pxW->pxDrawHandler = prvDraw;
+		pxW->pxDrawHandler = bLabelDraw;
 
 		return pxW;
 	}

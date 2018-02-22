@@ -81,6 +81,7 @@ extern "C" {
 
 	void        vLabelClear(xWidget *pxW, bool bSetInvalidate);
 	int         iLabelPrintf(xWidget *pxW, char const *pcFmt, ...);
+	bool        bLabelDraw(xWidget *pxW);
 #ifdef __cplusplus
 }
 #endif // __cplusplus

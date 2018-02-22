@@ -5,3 +5,4 @@
 #include "emGUI/cpp/Widget.hpp"
 #include "emGUI/cpp/DisposableWindow.hpp"
 #include "emGUI/cpp/Button.hpp"
+#include "emGUI/cpp/Label.hpp"
