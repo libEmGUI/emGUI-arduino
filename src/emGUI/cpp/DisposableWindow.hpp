@@ -32,8 +32,10 @@ namespace emGUI {
 			vWindowSetOnCloseHandler(winWidget, [](xWindow *pxW) -> bool {
 				if (auto w = WidgetCaster<Widget_t>::getObject(pxW)) {
 					auto close = w->onClose();
-					if (close && bWindowisDisposable(pxW))
+					if (close && bWindowisDisposable(pxW)) {
+						w->xThis = NULL;
 						delete w;
+					}
 					return close;
 				}
 

@@ -7,6 +7,7 @@ namespace emGUI {
 
 	class Widget {
 	public:
+		Widget(){}
 		xWidget* get() const {
 			return xThis;
 		};
@@ -21,7 +22,12 @@ namespace emGUI {
 
 	protected:
 		xWidget* xThis;
-		Widget() {};
+		virtual ~Widget() {			
+				if (xThis) {
+					vWidgetDispose(xThis);
+					xThis = NULL;
+				}
+		};
 
 	private:
 		Widget(const Widget &) = delete; // if needed, put as private

@@ -8,10 +8,9 @@ namespace emGUI {
 
 	class ButtonBase : public Widget {
 	public:
-		~ButtonBase() {
+		virtual ~ButtonBase() {
 			if (xThis) {
 				vButtonSetOnClickHandler(xThis, NULL);
-				vWidgetDispose(xThis);
 			}
 		};
 
