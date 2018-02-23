@@ -69,6 +69,7 @@ extern "C" {
 	void vWindowManagerUpdateWindow();
 	bool bWindowManagerIsWindowActive(int eWnd);
 	xWindow * pxWindowManagerGetWindow(int eWnd);
+	xWindow * pxWindowManagerGetActiveWindow();
 
 	void vWindowManagerSetKeypressHandler(WindowKeyPressEventHdl pxEvenHandler);
 

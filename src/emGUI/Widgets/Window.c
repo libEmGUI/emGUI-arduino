@@ -114,6 +114,13 @@ void vWindowSetHeader(xWindow * pxW, char const* strH) {
 	vWindowManagerUpdateWindow();
 }
 
+char* vWindowGetHeader(xWindow * pxW) {
+	xWindowProps *xP;
+	if (!(xP = (xWindowProps*)pxWidgetGetProps(pxW, WidgetWindow)))
+		return;
+	return xP->strHeader;
+}
+
 void vWindowSetOnCloseRequestHandler(xWindow * pxW, WidgetEvent pxCallback) {
 	xWindowProps *xP;
 	if (!(xP = (xWindowProps*)pxWidgetGetProps(pxW, WidgetWindow)))

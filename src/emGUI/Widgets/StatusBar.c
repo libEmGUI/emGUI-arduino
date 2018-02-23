@@ -67,24 +67,6 @@ xStatusBar* xStatusBarCreate(uint16_t usColor) {
 	pxW->eType = WidgetStatusBar;
 	vWidgetSetBgColor(pxW, usColor, false);
 
-	usY = 2;
-	usW = usWidgetGetH(pxW) - usY * 2;
-	usX = usWidgetGetW(pxW) - usWidgetGetH(pxW);
-
-	xP->xCloseButton = pxButtonCreateFromText(usX, usY, usW, usW, "X", pxW);
-	vWidgetSetBgColor(xP->xCloseButton, EMGUI_COLOR_GRAY, false);
-	//vWidgetSetTransparency(xP->xCloseButton, true);
-	vWidgetSetOnClickHandler(xP->xCloseButton, prvCloseClickHandler);
-
-	usY = (usWidgetGetH(pxW) - pxDrawHDL()->usFontGetH(xFnt)) / 2;
-	usW = usWidgetGetW(pxW) * 70 / 100;
-	usX = usWidgetGetW(pxW) / 2 - usW / 2;
-
-	xP->xWndHeader = pxLabelCreate(usX, usY, usW, 0, "", xFnt, EMGUI_WINDOW_HEADER_LENGTH, pxW);
-	vWidgetSetBgColor(xP->xWndHeader, usColor, false);
-	vLabelSetTextColor(xP->xWndHeader, EMGUI_COLOR_MENU_HEADER_TEXT);
-	vLabelSetTextAlign(xP->xWndHeader, LABEL_ALIGN_CENTER);
-
 	return pxW;
 }
 

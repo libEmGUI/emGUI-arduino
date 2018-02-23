@@ -148,6 +148,19 @@ xWindow * pxWindowManagerGetWindow(int eWnd) {
 	return NULL;
 }
 
+xWindow * pxWindowManagerGetActiveWindow() {
+	if (!xWindowManagerInstance)
+		return NULL;
+
+	xWidget *pxN = xWindowManagerInstance->pxFirstChild;
+
+	if (!xActiveWindow)
+		return false;
+	return xActiveWindow->xWnd;
+
+	return NULL;
+}
+
 bool bWindowManagerIsWindowActive(int eWnd) {
 	if (!xActiveWindow)
 		return false;

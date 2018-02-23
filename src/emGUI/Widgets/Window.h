@@ -45,6 +45,7 @@ extern "C" {
 	const char* pcWindowGetHeader(xWindow *pxW);
 
 	int iWindowGetID(xWindow * pxW);
+	char* vWindowGetHeader(xWindow * pxW);
 
 	bool bWindowClose(xWindow *pxW);
 	bool bWindowOpen(xWindow *pxW);
