@@ -6,3 +6,4 @@
 #include "emGUI/cpp/DisposableWindow.hpp"
 #include "emGUI/cpp/Button.hpp"
 #include "emGUI/cpp/Label.hpp"
+#include "emGUI/cpp/WindowHeader.hpp"
