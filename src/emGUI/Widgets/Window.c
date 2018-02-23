@@ -117,7 +117,7 @@ void vWindowSetHeader(xWindow * pxW, char const* strH) {
 char* vWindowGetHeader(xWindow * pxW) {
 	xWindowProps *xP;
 	if (!(xP = (xWindowProps*)pxWidgetGetProps(pxW, WidgetWindow)))
-		return;
+		return NULL;
 	return xP->strHeader;
 }
 

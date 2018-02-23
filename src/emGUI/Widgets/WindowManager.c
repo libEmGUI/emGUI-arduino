@@ -152,10 +152,8 @@ xWindow * pxWindowManagerGetActiveWindow() {
 	if (!xWindowManagerInstance)
 		return NULL;
 
-	xWidget *pxN = xWindowManagerInstance->pxFirstChild;
-
 	if (!xActiveWindow)
-		return false;
+		return NULL;
 	return xActiveWindow->xWnd;
 
 	return NULL;
