@@ -27,7 +27,7 @@
 #include "emGUI/Draw/Draw.h"
 #include <stdlib.h> 
 
-bool static prvDraw(xPictureStack *pxW){
+bool bPictureStackDraw(xPictureStack *pxW){
   xPictureStackProps *xP;
   
   if(!pxW)
@@ -111,7 +111,7 @@ xPictureStack *pxPictureStackCreate(uint16_t usX, uint16_t usY, xPicture xPic, x
         
     pxW->eType = WidgetPictureStack;
       
-    pxW->pxDrawHandler = prvDraw;
+    pxW->pxDrawHandler = bPictureStackDraw;
     
     return pxW;
   }

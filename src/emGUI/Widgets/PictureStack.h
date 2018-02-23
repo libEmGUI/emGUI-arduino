@@ -55,6 +55,7 @@ bool            bPictureStackSelect(xWidget *pxW, char cItemNumber);
 bool            bPictureStackAddItem(xWidget *pxW, xPicture xPic);
 xPicture        xPictureStackGetItem(xWidget *pxW, char cItemNumber);
 bool			bPictureStackClose(xPictureStack *pxW);
+bool            bPictureStackDraw(xPictureStack *pxW);
 #ifdef __cplusplus
 }
 #endif
