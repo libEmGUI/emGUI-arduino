@@ -18,7 +18,7 @@ namespace emGUI {
 
 			if (!winWidget) { // maybe already opened?
 				vWindowManagerOpenWindow(ID);
-				return NULL;
+				return WidgetCaster<Widget_t>::getObject(pxWindowManagerGetWindow(ID));
 			}
 
 			vWindowSetDisposable(winWidget, true);
