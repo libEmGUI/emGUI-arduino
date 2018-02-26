@@ -138,7 +138,7 @@ static char *prvGetPage(char *pcPage, uint16_t uXFrom, uint16_t uXTo, uint16_t u
 	uint16_t uYBefor;
 	uYBefor = uYFrom;
 	pcNxtLine = pcPage;
-	*puLineCount = 0;
+	if (puLineCount) *puLineCount = NULL;
 	while ((uYBefor + pxDrawHDL()->usFontGetH(pubFont)) <= uYTo && pcNxtLine) {
 		pcNxtLine = prvGetLine(pcNxtLine, uXFrom, uXTo, NULL, pubFont, eHorAlign);
 		uYBefor += pxDrawHDL()->usFontGetH(pubFont);
