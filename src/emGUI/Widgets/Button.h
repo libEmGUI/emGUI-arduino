@@ -42,7 +42,7 @@ extern "C" {
 	void vButtonSetText(xWidget * pxW, char const* strL);
 
 	void vButtonSetPicture(xWidget *pxW, xPicture pusBgPicture);
-
+	void vButtonSetTextColor(xWidget *pxW, uint16_t color);
 #ifdef __cplusplus
 }
 #endif // __cplusplus

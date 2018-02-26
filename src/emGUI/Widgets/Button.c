@@ -265,3 +265,12 @@ void vButtonSetPicture(xWidget *pxW, xPicture pusPic) {
 	else
 		bWidgetSetBgPicture(pxW, pusPic);
 }
+void vButtonSetTextColor(xWidget *pxW, uint16_t color) {
+	xButtonProps *xP;
+
+	if (!(xP = (xButtonProps*)pxWidgetGetProps(pxW, WidgetButton)))
+		return;
+
+	vLabelSetTextColor(xP->xText, color);
+	return;
+}
