@@ -20,6 +20,9 @@
 #define EMGUI_USE_UTF8_FONTS    1
 #endif 
 
+//#define EMGUI_DEBUG					1
+
+
 #include <gfxfont.h> // if using UTF8 fonts, Adafruit-GFX should be updated to use uint16 char ranges
 
 #if EMGUI_USE_UTF8_FONTS
