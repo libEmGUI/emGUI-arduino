@@ -5,7 +5,7 @@
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
-eWindow		KEYWORD1
+eWindow	KEYWORD1
 WINDOW_MENU	KEYWORD1
 
 
@@ -13,22 +13,22 @@ WINDOW_MENU	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
-pxLabelCreate		KEYWORD2
-pxWindowCreate		KEYWORD2
+pxLabelCreate	KEYWORD2
+pxWindowCreate	KEYWORD2
 vInterfaceOpenWindow	KEYWORD2
 vDrawHandlerInit	KEYWORD2
-vDrawSetHandler		KEYWORD2
+vDrawSetHandler	KEYWORD2
 pxInterfaceCreate	KEYWORD2
-vInterfaceDraw 		KEYWORD2
+vInterfaceDraw	KEYWORD2
 #######################################
 # Instances (KEYWORD2)
 #######################################
 
-xDraw_t 		KEYWORD2
-xInterface 		KEYWORD2
-xLabel 			KEYWORD2
-xWidget			KEYWORD2
-xWindow			KEYWORD2
+xDraw_t	KEYWORD2
+xInterface	KEYWORD2
+xLabel	KEYWORD2
+xWidget	KEYWORD2
+xWindow	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
