@@ -317,7 +317,7 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
   if (!tft || !bmFile)
     return;
 
-  //Serial.println(pusPicture);
+  Serial.println(pusPicture);
   if (bmFile->open(pusPicture)){
 
     uint32_t W = bmFile->width();
@@ -331,16 +331,9 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
     dataSize  = dataSize + padding; // in case of odd width we should pad to 4 bytes
     dataSize *= H;
 
-    // Serial.print(W);
-    // Serial.print("x");
-    // Serial.println(H);
-    // Serial.println(dataSize);
-
-    //tft->writecommand (ILI9341_MADCTL);
-    //tft->writedata(0x80);
-
+    tft->setRotation(5);
     //we need to translate coords with respect to MAXIMUM available resolution for our controller
-    tft->setWindow(sX0, ILI9341_TFTHEIGHT - sY1, sX1, ILI9341_TFTHEIGHT - sY0);
+    tft->setWindow(sX0, ILI9341_TFTWIDTH - sY1, sX1, ILI9341_TFTHEIGHT - sY0);
     //for swapping X and Y
     //tft->setWindow(EMGUI_LCD_WIDTH - sX1, ILI9341_TFTHEIGHT -  sY1, EMGUI_LCD_WIDTH - sX0, ILI9341_TFTHEIGHT - sY0);
 
@@ -387,7 +380,6 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
 
     //tft->writecommand (ILI9341_MADCTL);
     //tft->writedata(0x00);
-        tft->setRotation(1);
     tft->setRotation(1);
   }
 }

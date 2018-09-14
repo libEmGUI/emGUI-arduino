@@ -18,20 +18,12 @@ xFont getSmallFont();
 xFont getBoldFont();
 
 #include "TimeClock.hpp"
-#include "BatteryWidget.hpp"
 #include "WiFiWidget.hpp"
 #include "ButtonWithBg.hpp"
 #include "TextFrame.hpp"
-#include "MQTTWidget.hpp"
 
-
-
-#include "WindowMessage.h"
-
-#include "WindowAuth.h"
-#include "WindowTask.h"
 #include "WindowIDLE.h"
-#include "WindowPopUp.h"
+
 
 
 

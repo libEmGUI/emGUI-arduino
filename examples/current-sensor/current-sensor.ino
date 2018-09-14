@@ -15,20 +15,20 @@
 #include <emGUI.h>
 #include "Peripherial.h"
 #include "emGUIGlue.h"
-#include "TouchWrapper.h"
-#include "I2CBitbanger.h"
 
 #include <sys/time.h>
-#include "Timeout.hpp"
 
 #include <time.h>  
 #include <coredecls.h>                  // settimeofday_cb()
 #include "src/DummyGUI/deviceState.hpp"
-
 #include "src/DummyGUI/WindowPack.h"
 
-#include "CommonWifi.h" 
-#include "Version.h"
+
+#include "src/TouchWrapper/TouchWrapper.h"
+#include "src/common/I2CBitbanger.h"
+#include "src/common/Timeout.hpp"
+#include "src/common/CommonWifi.h" 
+
 
 
 #define TZ              3       // (utc+) TZ in hours
@@ -60,20 +60,6 @@ extern "C" {
 static Peripherial* periph = Peripherial::getInstance();                    // port extender (buttons, vibro, charger status)
 
 WiFiEventHandler onConnect, onDisconnect, onIp;
-
-/****************** Interrupt handlers   **********************/
-void ICACHE_RAM_ATTR handleSysInt() {
-  periph->intr();
-}
-
-void ICACHE_RAM_ATTR handleTouchInt() {
-  periph->touch.init();
-}
-
-void ICACHE_RAM_ATTR handleNfcInt() {
-  periph->intrNFC();
-}
-
 
 /***********************  Peripherial Events        *************************/
 static void PeriphEventHdl(Peripherial *sender, Peripherial::eventType event, int32_t param1) {
@@ -113,16 +99,12 @@ void setup() {
   Serial.println(WiFi.macAddress());
 
   Serial.print(F("Core: "));
-  //Serial.println(ESP.getCoreVersion());
+  Serial.println(ESP.getCoreVersion());
 
   Serial.print(F("SDK: "));
-  //Serial.println(ESP.getSdkVersion());
+  Serial.println(ESP.getSdkVersion());
 
   SPIFFS.begin();
-
-
-  pinMode(INTR_SYS, INPUT_PULLUP);
-  //pinMode(INTR_TOUCH, INPUT_PULLUP);
 
   I2CBitbanger(SDA_PIN, SCK_PIN);
   
@@ -138,63 +120,40 @@ void setup() {
   });
 
   onDisconnect = WiFi.onStationModeDisconnected([&](const WiFiEventStationModeDisconnected& evt){
-    getHWStatus()->connOFF.start();
-    getHWStatus()->connON.stop();
     vGUIHandlePeriph(EV_WIFI, HW_DISCON);
     Serial.println(F("WiFi disconnected!"));
-    deviceState::getInstance()->mqtt().disconnect();
     deviceState::getInstance()->wifiStatus = deviceState::WIFI_DISC;
   });
 
   onIp = WiFi.onStationModeGotIP([&](const WiFiEventStationModeGotIP& evt){
     vGUIHandlePeriph(EV_WIFI, HW_GOTIP);
     Serial.println(F("WiFi got Ip!"));
-	  //deviceState::getInstance()->mqtt().connect();
     deviceState::getInstance()->wifiStatus = deviceState::WIFI_GOTIP;
-    deviceState::getInstance()->mqttServiceModeHost = WiFi.dnsIP(1).toString();
-    if (deviceState::getInstance()->_isInSeviceMode) deviceState::getInstance()->mqttServiceMode();
-    deviceState::getInstance()->mqtt().connect();
   });
 
   vGUIGlueInit();
   GUIInit();
-  periph->powerSaveExit();
 
   deviceState::getInstance(); //init device state object
-
-  //pinMode(INTR_TOUCH, INPUT_PULLUP); //should be done after TFT init!
-
-  attachInterrupt(digitalPinToInterrupt(INTR_SYS), handleSysInt, FALLING);
-  //attachInterrupt(digitalPinToInterrupt(INTR_TOUCH), handleTouchInt, FALLING);
-  attachInterrupt(digitalPinToInterrupt(INTR_NFC), handleNfcInt, RISING);
-
-  periph->vibroPulse();
-
-  
-  pinMode(INTR_NFC, INPUT_PULLUP);
   deviceState::getInstance()->ssid=initWifi();
-  periph->sleepTimeout.reset();
-  //deviceState::getInstance()->debug(true);
+
 }
 
 void loop(void) {
 
   auto delayTime = 60;
-  if (periph->loop((digitalRead(INTR_SYS) == 0), (bool)digitalRead(INTR_NFC))) {
+  if (periph->loop()) {
   	vGUIHandlePeriph(EV_HW_SYS_INT, 0);
   };
 
   if(periph->touch.handleTouch(true)){
-    periph->sleepTimeout.reset();
     delayTime = 1;
     vGUIHandlePeriph(EV_HW_TOUCH_INT, 0);
   }
 
   vWindowManagerDraw();
-  vGUIHandlePeriph(EV_HW_VOLTAGE_CHANGE, periph->bat.charge());
   delay(delayTime);
   Serial.print(".");
-  getHWStatus()->tick();
 
   deviceState::getInstance()->loop();
 

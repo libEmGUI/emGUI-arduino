@@ -2,7 +2,7 @@
 
 #include <ArduinoJson.h>
 #include "Config.hpp"
-#include "./src/DummyGUI/deviceState.hpp"
+#include "../DummyGUI/deviceState.hpp"
 
 String initWifi() {
 	JSONConfig jc("/config.json");

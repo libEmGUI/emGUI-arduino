@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Arduino.h>
+#include <stdint.h>
 #include <pgmspace.h>
-#include "I2CBitbanger.h"
 #include "Wire.h"
 
-I2CBitbanger::I2CBitbanger(uint8_t sda, uint8_t sck){
+void I2CBitbanger(uint8_t sda, uint8_t sck) {
 	pinMode(sda, OUTPUT);
 	pinMode(sck, OUTPUT);
 	digitalWrite(sck, 0);

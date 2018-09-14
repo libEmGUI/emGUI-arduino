@@ -1,7 +1,7 @@
 {
 	"wifi":
 	{
-		"ssid": "smartatch",
+		"ssid": "7bit fighters",
 		"pass": "trytohackme"
 	},
 	"mqtt":{
