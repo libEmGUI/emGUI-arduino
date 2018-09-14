@@ -1,0 +1,24 @@
+{
+	"wifi":
+	{
+		"ssid": "smartatch",
+		"pass": "trytohackme"
+	},
+	"mqtt":{
+		"addr": "test.flexibity.com",
+		"port": 1883,
+		"user": "",
+		"pass": ""
+	},
+	
+	"mqtt2":{
+		"addr": "test.flexibity.com",
+		"port": 1883,
+		"user": "smartwatch",
+		"pass": "trytohackme"
+	},
+	"ntp":{
+		"S1": "pool.ntp.org",
+		"S2": "time.nist.gov"
+	}
+}
