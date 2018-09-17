@@ -116,23 +116,11 @@ void setup() {
 
 }
 
-void handleData(int data, xPlotData_t * buffer) {
-	auto pd = buffer;
-
-	//logger->info(data);
+void handleData(int data) {
 	auto fData = (int16_t)(lpf.do_sample(data));
-	pd->psData[pd->ulWritePos] = fData;
-
-	//params->extraParams->averageCurrent = (float)iir_f.do_sample(fData);
-	vGUIUpdateCurrentMonitor();
-	pd->ulWritePos++;
-	if (pd->ulWritePos >= pd->ulElemCount) {
-		pd->ulWritePos = 0;
-		pd->bDataFilled = true;
-	}
+	vGUIUpdateCurrentMonitor(fData);
 }
 
-xPlotData_t *  plotData= pxGUIGetPlotData();
 void loop(void) {
 
   auto delayTime = 0;
@@ -154,5 +142,5 @@ void loop(void) {
   static float arg = 0.f;
 
   arg += 3.14f / 1000;
-  handleData(int(sin(arg) * 100.f) + 100, plotData);
+  handleData(int(sin(arg) * 100.f) + 100);
 }

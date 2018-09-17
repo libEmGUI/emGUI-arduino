@@ -102,11 +102,14 @@ void vPlotSetColor(xPlot *pxW, uint16_t usColor, bool bInvalidate);
 
 
 /**
- *  @}
+ *  @brief add the value to PlotData, inc ulWritePos and put it back if overflowed
+ *
+ *  @param xPlotData_t - plot data ring buffer
+ *  @param data - data
+ *
  */
- /**
-  *  @}
-  */
+void vPlotAddValue(xPlotData_t * buffer, short data);
+
 
 
 #ifdef __cplusplus

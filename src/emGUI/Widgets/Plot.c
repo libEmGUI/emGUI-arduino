@@ -226,6 +226,19 @@ static bool prvPlot(xPlot *pxW) {
 	return bRedrawed;
 }
 
+void vPlotAddValue(xPlotData_t * buffer, short data){
+	if (!buffer)
+		return false; 
+	buffer->psData[buffer->ulWritePos] = data;
+	buffer->ulWritePos++;
+	if (buffer->ulWritePos >= buffer->ulElemCount) {
+		buffer->ulWritePos = 0;
+		buffer->bDataFilled = true;
+	}
+
+
+}
+
 void vPlotSetColor(xPlot *pxW, uint16_t usColor, bool bInvalidate) {
 	xPlotProps* xP;
 	if (!(xP = (xPlotProps*)pxWidgetGetProps(pxW, WidgetPlot)))

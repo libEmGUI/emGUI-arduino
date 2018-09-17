@@ -198,10 +198,11 @@ public:
 };
 
 
-  void vGUIUpdateCurrentMonitor() {
-    auto data = plotLead.psData[plotLead.ulWritePos];
-    //iLabelPrintf(currentMonitor, "I_Avg: %.1f; I: %d.%d (mA)", extraP.averageCurrent / 10.f, data / 10, abs(data % 10));
-  }
+void vGUIUpdateCurrentMonitor(short data) {
+  vPlotAddValue(&plotLead, data);
+  //auto data = plotLead.psData[plotLead.ulWritePos];
+  //iLabelPrintf(currentMonitor, "I_Avg: %.1f; I: %d.%d (mA)", extraP.averageCurrent / 10.f, data / 10, abs(data % 10));
+}
 
 // Action on interface creatings
 bool bGUIonWindowManagerCreateHandler(xWidget *) {

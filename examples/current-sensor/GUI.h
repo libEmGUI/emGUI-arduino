@@ -36,7 +36,7 @@ typedef enum {
 	HW_GOTIP = 2
 }eWiFiStatus;
 xPlotData_t * pxGUIGetPlotData();
-void vGUIUpdateCurrentMonitor();
+void vGUIUpdateCurrentMonitor(short);
 
 
 
