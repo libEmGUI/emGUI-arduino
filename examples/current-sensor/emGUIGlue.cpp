@@ -311,13 +311,14 @@ static void vHLine(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usColor
   if (!tft)
     return;
 
+  if (usX0 == usX1) usX1++;
   tft->drawFastHLine(usX0, usY0, usX1 - usX0, usColor);
 }
 
 static void vVLine(uint16_t usX0, uint16_t usY0, uint16_t usY1, uint16_t usColor) {
   if (!tft)
     return;
-
+  if (usY0 == usY1) usY1++;
   tft->drawFastVLine(usX0, usY0, usY1 - usY0, usColor);
 }
 

@@ -31,7 +31,7 @@ typedef struct xPlotProps_struct {
 	bool        bWriteEnabled;
 	uint16_t    usColor;            ///< цвет графика
 	xPlotData_t      *pxL;                ///< Дескриптор отведения
-	float       xScale;             ///< размер клетки по Y в единицах измерения
+	scale_t       xScale;             ///< размер клетки по Y в единицах измерения
 	uint8_t     usXMarkerCount;
 	uint8_t     usYMarkerCount;
 	int16_t     drawOffset;
@@ -39,7 +39,7 @@ typedef struct xPlotProps_struct {
 
 
 /**
- * @brief this private functions get dimentions considering border width (0 or 1 px)
+ * @brief this private function gets dimentions considering border width (0 or 1 px)
  *
  * @param pxW - виджет
  *
@@ -73,14 +73,14 @@ static bool prvGetValue(xPlotData_t *pxL, int16_t * psSample, uint32_t uiOffset,
 }
 
 //int math is broken yet
-#define USE_FLOAT 
+//#define USE_FLOAT 
 
 /**
  * @brief производит отрисовку
  * @param pxW - виджет
  */
 static bool prvPlot(xPlot *pxW) {
-	int16_t bHaveSample,
+	int32_t bHaveSample,
 		sSample = 0;
 
 	if (!pxW)
@@ -91,19 +91,19 @@ static bool prvPlot(xPlot *pxW) {
 	if (!xP)
 		return false; 
 
-	uint16_t usX,
+	uint32_t usX,
 		usH = usWidgetGetH(pxW);
 
 	xPlotData_t *xL = xP->pxL;
 
-	int16_t sY0,
+	int32_t sY0,
 		sY1,
 		sGraphMiddleLine = prvWidgetMiddleLine(pxW),
 		sMin,
 		sMax,
 		sDataDCOffset = xP->sDataDCOffset;
 	
-	int16_t drawOffset = xP->drawOffset;
+	int32_t drawOffset = xP->drawOffset;
 	uint32_t uiSampleCount = (pxW->bValid)?xP->pxL->ulWritePos:xP->pxL->ulElemCount;
 
 	bool bRedrawed = false;
@@ -115,10 +115,10 @@ static bool prvPlot(xPlot *pxW) {
 #ifdef USE_FLOAT //if FPU is available
 	float coe = usH /( xP->usYMarkerCount * xP->xScale); //при мин. масштабе во всей высоте 2мв
 #else
-	long coe = (usH << 16) / (PLOT_1MV * xP->xScale); //при мин. масштабе во всей высоте 2мв
+	long coe = (usH << 16) / (xP->usYMarkerCount * xP->xScale); //при мин. масштабе во всей высоте 2мв
 #endif
 
-	uint16_t usCorrection = 0;
+	uint32_t usCorrection = 0;
 	if (usW < xL->ulElemCount)
 		usCorrection = xL->ulElemCount%usW;
 
@@ -137,7 +137,7 @@ static bool prvPlot(xPlot *pxW) {
 	//График в каждой точке рисуется вертикальными линиями от минимума до максимума,
 	//найденного в усредненом отрезке.
 	for (i = (xP->usLastDrawedPosX == 0) ? 0 : xP->usLastDrawedPosX + 1; i < usW; i++) {
-		uint16_t usAvgCount = xL->ulElemCount / usW;
+		uint32_t usAvgCount = xL->ulElemCount / usW;
 		usSample = usAvgCount*i;
 
 		if (usCorrection) {
@@ -180,8 +180,8 @@ static bool prvPlot(xPlot *pxW) {
 		sY1 = sGraphMiddleLine - (sMin + sDataDCOffset) * coe - drawOffset;
 		sY0 = sGraphMiddleLine - (sMax + sDataDCOffset) * coe - drawOffset;
 #else
-		sY1 = sGraphMiddleLine + (((sDataDCOffset - sMin) * coe) >> 16);
-		sY0 = sGraphMiddleLine - (((sMax - sDataDCOffset) * coe) >> 16);
+		sY1 = sGraphMiddleLine - (((sMin + sDataDCOffset) * coe) >> 16) - drawOffset;
+		sY0 = sGraphMiddleLine - (((sMax + sDataDCOffset) * coe) >> 16) - drawOffset;
 #endif
 
 		// Ограничение при выходе за границы виджета
@@ -439,7 +439,7 @@ xPlot * pxPlotCreate(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usY1,
 	return NULL;
 }
 
-void vPlotSetScale(xPlot * pxW, float xScale) {
+void vPlotSetScale(xPlot * pxW, scale_t xScale) {
 	if (!pxW)
 		return;
 

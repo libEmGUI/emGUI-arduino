@@ -118,16 +118,16 @@ void setup() {
 
 void handleData(int data) {
 	auto fData = (int16_t)(lpf.do_sample(data));
-	vGUIUpdateCurrentMonitor(fData);
+	vGUIUpdateCurrentMonitor(data);
 }
 
 void loop(void) {
-
-  auto delayTime = 0;
+  auto delayTime = 60;
   if (periph->loop()) {
   	vGUIHandlePeriph(EV_HW_SYS_INT, 0);
   };
 
+  static int a = 100;
   if(periph->touch.handleTouch(true)){
     delayTime = 1;
     vGUIHandlePeriph(EV_HW_TOUCH_INT, 0);
@@ -135,12 +135,13 @@ void loop(void) {
 
   // emGUI loop
   vWindowManagerDraw();
-  delay(delayTime);
   Serial.print(".");
 
   deviceState::getInstance()->loop();
-  static float arg = 0.f;
+    if (a==100 ) a =0;
+    else a = 100;
+  handleData(a);
+  
 
-  arg += 3.14f / 1000;
-  handleData(int(sin(arg) * 100.f) + 100);
+  delay(delayTime);
 }

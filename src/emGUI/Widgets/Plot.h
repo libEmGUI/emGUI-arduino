@@ -23,6 +23,11 @@
 extern "C" {
 #endif // __cplusplus
 
+#ifdef USE_FLOAT
+typedef float scale_t;
+#else 
+typedef uint16_t scale_t;
+#endif
 /**
 * @brief дескриптор набора данных
 */
@@ -77,7 +82,7 @@ xPlot * pxPlotCreate(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usY1,
  * @param xScale - новый масштаб графика
  *
  */
-void vPlotSetScale(xPlot * pxW, float xScale);
+void vPlotSetScale(xPlot * pxW, scale_t xScale);
 
 /**
  * @brief сбрасывает позицию курсора в виджете
