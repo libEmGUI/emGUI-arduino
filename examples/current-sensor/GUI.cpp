@@ -16,7 +16,11 @@ using namespace emGUI;
 static xStatusBar * statusbar;
 static WindowHeader::uniquePtr header;
 static WiFiWidget::uniquePtr wifiWidget;
-
+static xPlotData_t plotLead;
+xPlotData_t * pxGUIGetPlotData() {
+	return &plotLead;
+}
+static xLabel * currentMonitor;
 bool MainWindowCloseRequestHdl(xWidget *);
 
 class TPTest: public DisposableWindow<WINDOW_TP_TEST, TPTest> {
@@ -90,6 +94,30 @@ public:
     uint8_t column2 = EMGUI_LCD_WIDTH / 2 - 30;
     uint8_t column3 = EMGUI_LCD_WIDTH - offset - 60;
 
+  auto menuBut = pxButtonCreateFromText(column3, row1, 60, 60, "plot", xThis);
+    vButtonSetOnClickHandler(menuBut, 
+      [](xWidget *) {
+      vWindowManagerOpenWindow(WINDOW_PLOT);
+      return true;
+    });
+  auto window_show_ampermeter = pxWindowCreate(WINDOW_PLOT);
+
+  vWindowSetHeader(window_show_ampermeter, "Plot, mA");
+
+  plotLead.bDataFilled = false;
+  plotLead.bWriteEnabled = false;
+  plotLead.sDataDCOffset = -500;
+  plotLead.sName = "Test";
+  plotLead.ulElemCount = AFE_DATA_RATE * 10;
+  plotLead.psData = (short *)malloc(sizeof(*plotLead.psData)*plotLead.ulElemCount);
+  plotLead.ulWritePos = 0;
+
+  xPlot * plot = pxPlotCreate(0, 0, EMGUI_LCD_WIDTH, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT -20, window_show_ampermeter, &plotLead);
+  vPlotSetScale(plot, 250);
+  currentMonitor = pxLabelCreate(10, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT - 20, EMGUI_LCD_WIDTH, 20, "I: _ (0.1 mA)", xGetDefaultFont(), 100, window_show_ampermeter);
+  vLabelSetTextAlign(currentMonitor, LABEL_ALIGN_CENTER);
+  vLabelSetVerticalAlign(currentMonitor, LABEL_ALIGN_MIDDLE);
+  
 	auto btn2 = pxButtonCreateFromText(column2, row1, 60, 60, "0", xThis);
 	vButtonSetOnClickHandler(btn2,
 		[](xWidget *) {
@@ -144,11 +172,16 @@ public:
 	  }
 	  return true;
 
+
+    
+    
+    return true;
   });
 
 
-
   }
+
+
 
   bool onCloseRequest() {
     auto dial = iModalDialogOpen(0, "ny", "Close?", "You are about to close main app! Are you sure?");
@@ -164,6 +197,11 @@ public:
   }
 };
 
+
+  void vGUIUpdateCurrentMonitor() {
+    auto data = plotLead.psData[plotLead.ulWritePos];
+    //iLabelPrintf(currentMonitor, "I_Avg: %.1f; I: %d.%d (mA)", extraP.averageCurrent / 10.f, data / 10, abs(data % 10));
+  }
 
 // Action on interface creatings
 bool bGUIonWindowManagerCreateHandler(xWidget *) {

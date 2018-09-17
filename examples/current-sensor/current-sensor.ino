@@ -9,17 +9,11 @@
 #include <Wire.h>
 #include <Hash.h>
 #include <FS.h>
-#include <AsyncMqttClient.hpp>
 
 #include "GUI.h"
-#include <emGUI.h>
 #include "Peripherial.h"
 #include "emGUIGlue.h"
 
-#include <sys/time.h>
-
-#include <time.h>  
-#include <coredecls.h>                  // settimeofday_cb()
 #include "src/DummyGUI/deviceState.hpp"
 #include "src/DummyGUI/WindowPack.h"
 
@@ -29,25 +23,12 @@
 #include "src/common/Timeout.hpp"
 #include "src/common/CommonWifi.h" 
 
+#include "src/FIR-filter-class/filt.h"
+#include "src/IIR/IIR_filter.h" 
 
 
-#define TZ              3       // (utc+) TZ in hours
-#define DST_MN          0      // use 60mn for summer time in some countries
-
-#define TZ_MN           ((TZ)*60)
-#define TZ_SEC          ((TZ)*3600)
-#define DST_SEC         ((DST_MN)*60)
-
-	
-timeval cbtime;			// time set in callback
-bool cbtime_set = false;
-
-void time_is_set(void)
-{
-	gettimeofday(&cbtime, NULL);
-	cbtime_set = true;
-	Serial.println(F("Time was updated"));
-}
+static Filter lpf(LPF, 51, AFE_DATA_RATE / 1000.f, 0.05);
+static IIR_filter iir_f(1.f / AFE_DATA_RATE);
 
 extern "C" {
 #include "user_interface.h"
@@ -73,15 +54,7 @@ static void PeriphEventHdl(Peripherial *sender, Peripherial::eventType event, in
 }
 
 void setup() {
-	settimeofday_cb(time_is_set);
-#ifndef _MSC_VER
-	WiFi.disconnect();
-	configTime(TZ_SEC, DST_SEC, "pool.ntp.org"); //TODO time servers!
-#endif // MSVC_VER
-
-	// TODO: ENERGY CONSUMPTION !!!
-  //wifi_set_sleep_type(LIGHT_SLEEP_T);
-
+  // Init serial and start firmware
   if(digitalRead(UART_RX) == 1) {
     if(!Serial){
       Serial.begin(115200);
@@ -112,6 +85,8 @@ void setup() {
   periph->onEvent = PeriphEventHdl;
 
   Serial.println(F("Starting Firmware"));
+
+  // Set callbacks for WiFi
   onConnect = WiFi.onStationModeConnected([&](const WiFiEventStationModeConnected& evt){
     deviceState::getInstance()->wifiStatus = deviceState::WIFI_CONN;
     vGUIHandlePeriph(EV_WIFI, HW_CON);
@@ -131,17 +106,36 @@ void setup() {
     deviceState::getInstance()->wifiStatus = deviceState::WIFI_GOTIP;
   });
 
+  // Setup emGUI
   vGUIGlueInit();
+  // Start GUI
   GUIInit();
 
-  deviceState::getInstance(); //init device state object
-  deviceState::getInstance()->ssid=initWifi();
+  deviceState::getInstance(); //init device state object, read configs and set callbacks
+  deviceState::getInstance()->ssid=initWifi(); // init wifi connection
 
 }
 
+void handleData(int data, xPlotData_t * buffer) {
+	auto pd = buffer;
+
+	//logger->info(data);
+	auto fData = (int16_t)(lpf.do_sample(data));
+	pd->psData[pd->ulWritePos] = fData;
+
+	//params->extraParams->averageCurrent = (float)iir_f.do_sample(fData);
+	vGUIUpdateCurrentMonitor();
+	pd->ulWritePos++;
+	if (pd->ulWritePos >= pd->ulElemCount) {
+		pd->ulWritePos = 0;
+		pd->bDataFilled = true;
+	}
+}
+
+xPlotData_t *  plotData= pxGUIGetPlotData();
 void loop(void) {
 
-  auto delayTime = 60;
+  auto delayTime = 0;
   if (periph->loop()) {
   	vGUIHandlePeriph(EV_HW_SYS_INT, 0);
   };
@@ -151,10 +145,14 @@ void loop(void) {
     vGUIHandlePeriph(EV_HW_TOUCH_INT, 0);
   }
 
+  // emGUI loop
   vWindowManagerDraw();
   delay(delayTime);
   Serial.print(".");
 
   deviceState::getInstance()->loop();
+  static float arg = 0.f;
 
+  arg += 3.14f / 1000;
+  handleData(int(sin(arg) * 100.f) + 100, plotData);
 }

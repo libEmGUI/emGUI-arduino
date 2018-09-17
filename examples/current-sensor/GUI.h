@@ -18,7 +18,8 @@ typedef enum {
 	WINDOW_WIFI,
 	WINDOW_IDLE,	//WindowIDLE
 	WINDOW_POPUP,	//WindowPopUp
-	WINDOW_SHORT_MESSAGE
+	WINDOW_SHORT_MESSAGE,
+	WINDOW_PLOT
 }eWindows;
 
 typedef enum {
@@ -34,7 +35,8 @@ typedef enum {
 	HW_DISCON = -1,
 	HW_GOTIP = 2
 }eWiFiStatus;
-
+xPlotData_t * pxGUIGetPlotData();
+void vGUIUpdateCurrentMonitor();
 
 
 
