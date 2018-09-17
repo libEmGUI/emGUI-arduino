@@ -71,7 +71,7 @@ void deviceState::loop() {
 
 	if (_updURL.length()> 1) {
 		if (_updFlag == FIRMWARE) {
-			Serial.println(F("\Starting firmware update..."));
+			Serial.println(F("\nStarting firmware update..."));
 			t_httpUpdate_return ret = ESPhttpUpdate.update(_updURL, "");
 			switch (ret) {
 			case HTTP_UPDATE_FAILED:
@@ -89,7 +89,7 @@ void deviceState::loop() {
 			_updURL = "";
 		}
 		else if (_updFlag == SPIFFS) {
-			Serial.println("\Starting spiffs update...");
+			Serial.println("\nStarting spiffs update...");
 			t_httpUpdate_return ret = ESPhttpUpdate.updateSpiffs(_updURL, "");
 			switch (ret) {
 			case HTTP_UPDATE_FAILED:
