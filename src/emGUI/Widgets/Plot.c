@@ -228,7 +228,7 @@ static bool prvPlot(xPlot *pxW) {
 
 void vPlotAddValue(xPlotData_t * buffer, short data){
 	if (!buffer)
-		return false; 
+		return ; 
 	buffer->psData[buffer->ulWritePos] = data;
 	buffer->ulWritePos++;
 	if (buffer->ulWritePos >= buffer->ulElemCount) {
