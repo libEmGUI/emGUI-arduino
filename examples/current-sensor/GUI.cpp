@@ -13,6 +13,7 @@ static Peripherial* periph = Peripherial::getInstance();
 
 using namespace emGUI;
 
+bool skipDelay = false;;
 static xStatusBar * statusbar;
 static WindowHeader::uniquePtr header;
 static WiFiWidget::uniquePtr wifiWidget;
@@ -97,6 +98,7 @@ public:
   auto menuBut = pxButtonCreateFromText(column3, row1, 60, 60, "plot", xThis);
     vButtonSetOnClickHandler(menuBut, 
       [](xWidget *) {
+        skipDelay = true;
       vWindowManagerOpenWindow(WINDOW_PLOT);
       return true;
     });
@@ -113,7 +115,7 @@ public:
   plotLead.ulWritePos = 0;
 
   xPlot * plot = pxPlotCreate(0, 0, EMGUI_LCD_WIDTH, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT -20, window_show_ampermeter, &plotLead);
-  vPlotSetScale(plot, 250);
+  vPlotSetScale(plot, 250);   // Size of grid cell (yval)
   currentMonitor = pxLabelCreate(10, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT - 20, EMGUI_LCD_WIDTH, 20, "I: _ (0.1 mA)", xGetDefaultFont(), 100, window_show_ampermeter);
   vLabelSetTextAlign(currentMonitor, LABEL_ALIGN_CENTER);
   vLabelSetVerticalAlign(currentMonitor, LABEL_ALIGN_MIDDLE);
@@ -200,8 +202,12 @@ public:
 
 void vGUIUpdateCurrentMonitor(short data) {
   vPlotAddValue(&plotLead, data);
-  //auto data = plotLead.psData[plotLead.ulWritePos];
-  //iLabelPrintf(currentMonitor, "I_Avg: %.1f; I: %d.%d (mA)", extraP.averageCurrent / 10.f, data / 10, abs(data % 10));
+  //long data = plotLead.psData[plotLead.ulWritePos];
+  static char textBuffer[80];
+
+  //sprintf (textBuffer, "I_Avg: %d; I: %d.%d (mA)\0", data / 10, data / 10, abs(data % 10));
+  sprintf (textBuffer, "%d\0", data / 10);
+  pcLabelSetText(currentMonitor, textBuffer);
 }
 
 // Action on interface creatings

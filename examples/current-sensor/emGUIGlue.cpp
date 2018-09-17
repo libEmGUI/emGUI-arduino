@@ -259,8 +259,6 @@ static void vRectangle(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usY
   } else {
     tft->drawRect(usX0, usY0, usX1 - usX0 + 1, usY1 - usY0 + 1, usColor);
   }
-
-  Serial.printf("draw rect : %d, %d, %d, %d \n\r",usX0, usY0, usX1 - usX0 + 1, usY1 - usY0 + 1);
 }
 
 static void vPutChar( uint16_t usX, uint16_t usY, char cChar, xFont pubFont, uint16_t usColor, uint16_t usBackground, bool bFillBg) {

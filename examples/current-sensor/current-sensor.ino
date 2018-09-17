@@ -138,10 +138,10 @@ void loop(void) {
   Serial.print(".");
 
   deviceState::getInstance()->loop();
-    if (a==100 ) a =0;
-    else a = 100;
+    if (a>=250 ) a =0;
+    else a++;
   handleData(a);
   
-
+  if (!skipDelay)
   delay(delayTime);
 }
