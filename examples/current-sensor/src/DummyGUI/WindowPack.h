@@ -23,6 +23,7 @@ xFont getBoldFont();
 #include "TextFrame.hpp"
 
 #include "WindowIDLE.h"
+#include "WindowPlot.h"
 
 
 

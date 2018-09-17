@@ -35,8 +35,8 @@ typedef enum {
 	HW_DISCON = -1,
 	HW_GOTIP = 2
 }eWiFiStatus;
+
 xPlotData_t * pxGUIGetPlotData();
-void vGUIUpdateCurrentMonitor(short);
 
 extern bool skipDelay;
 

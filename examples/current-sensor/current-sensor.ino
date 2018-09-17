@@ -117,8 +117,9 @@ void setup() {
 }
 
 void handleData(int data) {
+  static auto window = WindowPlot::getInstance();
 	auto fData = (int16_t)(lpf.do_sample(data));
-	vGUIUpdateCurrentMonitor(data);
+	window->update(fData);
 }
 
 void loop(void) {
