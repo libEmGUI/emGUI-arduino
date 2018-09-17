@@ -13,12 +13,19 @@ static Peripherial* periph = Peripherial::getInstance();
 
 using namespace emGUI;
 
-bool skipDelay = false;;
+bool skipDelay = false;
 static xStatusBar * statusbar;
 static WindowHeader::uniquePtr header;
 static WiFiWidget::uniquePtr wifiWidget;
 
-
+bool WindowPlot::onOpen(){
+  skipDelay = true;
+  return false;
+}
+bool WindowPlot::onClose(){
+  skipDelay = false;
+  return false;
+}
 
 bool MainWindowCloseRequestHdl(xWidget *);
 

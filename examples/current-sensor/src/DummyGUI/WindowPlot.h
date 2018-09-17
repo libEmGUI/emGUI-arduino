@@ -1,6 +1,7 @@
 #ifndef _WINDOW_PAGE_WINDOW_PLOT_
 #define _WINDOW_PAGE_WINDOW_PLOT_
 
+
 #include "WindowPack.h"
 using namespace emGUI;
 
@@ -33,6 +34,8 @@ public:
 	}
 	xLabel * currentMonitor;
 	uint16_t data;
+	bool onOpen();
+	bool onClose();
 	void update(short data) {
 		this->data = data;
 		vPlotAddValue(&plotLead, data);
@@ -42,9 +45,7 @@ public:
 	bool onDrawUpdate(){
 		static char textBuffer[80];
 
-		//sprintf (textBuffer, "I_Avg: %d; I: %d.%d (mA)\0", data / 10, data / 10, abs(data % 10));
 		sprintf (textBuffer, "%d\0", data / 10);
-
 		pcLabelSetText(currentMonitor, textBuffer);
 		return false;
 	}

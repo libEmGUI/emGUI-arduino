@@ -117,9 +117,9 @@ void setup() {
 }
 
 void handleData(int data) {
-  static auto window = WindowPlot::getInstance();
+  auto window = WindowPlot::getInstance(false);
 	auto fData = (int16_t)(lpf.do_sample(data));
-	window->update(fData);
+	if (window) window->update(data);
 }
 
 void loop(void) {
