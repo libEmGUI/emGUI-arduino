@@ -13,7 +13,7 @@ public:
 	void create() {				
 		vWindowSetHeader(xThis, "Plot, mA");
 		
-		 plotLead.bDataFilled = false;
+		plotLead.bDataFilled = false;
 		plotLead.bWriteEnabled = false;
 		plotLead.sDataDCOffset = -500;
 		plotLead.sName = "Test";
@@ -23,8 +23,13 @@ public:
 
 		plot = pxPlotCreate(0, 0, EMGUI_LCD_WIDTH, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT -20, xThis, &plotLead);
 		vPlotSetScale(plot, 250);   // Size of grid cell (yval)
-		currentMonitor = pxLabelCreate(10, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT - 20, EMGUI_LCD_WIDTH, 20, "I: _ (0.1 mA)", xGetDefaultFont(), 100, xThis);
-		vLabelSetTextAlign(currentMonitor, LABEL_ALIGN_CENTER);
+
+		currentMonitorHeader = pxLabelCreate(0, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT - 20, 100, 20, "I (mA):", xGetDefaultFont(), 100, xThis);
+		vLabelSetTextAlign(currentMonitorHeader, LABEL_ALIGN_RIGHT);
+		vLabelSetVerticalAlign(currentMonitorHeader, LABEL_ALIGN_MIDDLE);	
+
+		currentMonitor = pxLabelCreate(100, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT - 20, 100, 20, "0", xGetDefaultFont(), 100, xThis);
+		vLabelSetTextAlign(currentMonitor, LABEL_ALIGN_LEFT);
 		vLabelSetVerticalAlign(currentMonitor, LABEL_ALIGN_MIDDLE);	
 	}
 	
@@ -33,7 +38,9 @@ public:
 		return false;
 	}
 	xLabel * currentMonitor;
+	xLabel * currentMonitorHeader;
 	uint16_t data;
+	short passDelay = 30;
 	bool onOpen();
 	bool onClose();
 	void update(short data) {
@@ -44,9 +51,12 @@ public:
 
 	bool onDrawUpdate(){
 		static char textBuffer[80];
-
-		sprintf (textBuffer, "%d\0", data / 10);
-		pcLabelSetText(currentMonitor, textBuffer);
+		static int lastMillis = millis();
+		if (millis() - lastMillis > passDelay) {
+			sprintf (textBuffer, "%d\0", data / 10);
+			pcLabelSetText(currentMonitor, textBuffer);
+			lastMillis = millis();
+		} 
 		return false;
 	}
 

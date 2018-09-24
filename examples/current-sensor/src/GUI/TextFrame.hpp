@@ -5,6 +5,7 @@
 using namespace emGUI;
 class TextFrame : public Button {
 public:
+	int EMGUI_COLOR_SW_BLUE = 0x4C59;
 	typedef std::unique_ptr<TextFrame> uniquePtr;
 	int cornerSize;
 	int scrollSize;

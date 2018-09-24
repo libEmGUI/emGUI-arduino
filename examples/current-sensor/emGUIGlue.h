@@ -14,7 +14,5 @@ void vGUIGlueInit();
 xFont xGetDefaultFont();
 void vGUIGlueSetCtx(void *);
 
-//some gui settings
-extern int EMGUI_COLOR_SW_BLUE;
 
 #endif

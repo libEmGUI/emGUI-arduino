@@ -7,7 +7,7 @@
 
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
-#include "src/DummyGUI/WindowPack.h"
+#include "WindowPack.h"
 
 static Peripherial* periph = Peripherial::getInstance();
 

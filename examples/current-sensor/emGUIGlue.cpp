@@ -13,7 +13,7 @@
 
 #include <emGUI_port_opts.h>
 
-int EMGUI_COLOR_SW_BLUE = 0x4C59;
+
 
 
 template<typename s, int t> struct check_size {

@@ -10,12 +10,12 @@
 #include <Hash.h>
 #include <FS.h>
 
-#include "GUI.h"
+#include "src/GUI/GUI.h"
 #include "Peripherial.h"
 #include "emGUIGlue.h"
 
-#include "src/DummyGUI/deviceState.hpp"
-#include "src/DummyGUI/WindowPack.h"
+#include "src/GUI/deviceState.hpp"
+#include "src/GUI/WindowPack.h"
 
 
 #include "src/TouchWrapper/TouchWrapper.h"
@@ -25,11 +25,11 @@
 
 #include "src/FIR-filter-class/filt.h"
 #include "src/IIR/IIR_filter.h" 
-
+#include <INA219.h>
 
 static Filter lpf(LPF, 51, AFE_DATA_RATE / 1000.f, 0.05);
 static IIR_filter iir_f(1.f / AFE_DATA_RATE);
-
+INA219 monitor;
 extern "C" {
 #include "user_interface.h"
 }
@@ -80,7 +80,6 @@ void setup() {
   SPIFFS.begin();
 
   I2CBitbanger(SDA_PIN, SCK_PIN);
-  
   periph->init();
   periph->onEvent = PeriphEventHdl;
 
@@ -113,7 +112,7 @@ void setup() {
 
   deviceState::getInstance(); //init device state object, read configs and set callbacks
   deviceState::getInstance()->ssid=initWifi(); // init wifi connection
-
+  monitor.begin();
 }
 
 void handleData(int data) {
@@ -141,8 +140,9 @@ void loop(void) {
   deviceState::getInstance()->loop();
     if (a>=250 ) a =0;
     else a++;
-  handleData(a);
-  
+    handleData((int)(monitor.shuntCurrent()*100) * 100);
+  //handleData(a);
+
   if (!skipDelay)
   delay(delayTime);
 }
