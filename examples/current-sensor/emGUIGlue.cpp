@@ -340,7 +340,8 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
 
     tft->setRotation(5);
     //we need to translate coords with respect to MAXIMUM available resolution for our controller
-    tft->setWindow(sX0, ILI9341_TFTWIDTH - sY1, sX1, ILI9341_TFTHEIGHT - sY0);
+    //tft->setWindow(sX0, ILI9341_TFTWIDTH - sY1, sX1, ILI9341_TFTHEIGHT - sY0);
+    tft->setWindow(sX0, 240 - sY1, sX1, 240 - sY0);
     //for swapping X and Y
     //tft->setWindow(EMGUI_LCD_WIDTH - sX1, ILI9341_TFTHEIGHT -  sY1, EMGUI_LCD_WIDTH - sX0, ILI9341_TFTHEIGHT - sY0);
 
@@ -434,6 +435,7 @@ void TFTWake(){
 void vGUIGlueInit(){
   // Config EM_GUI opts 
   EMGUI_LCD_WIDTH = 320;
+  EMGUI_STATUS_BAR_HEIGHT = 26;
   if (!tft){
     SPIFFS.begin();
     bmFile = new BMPFile();

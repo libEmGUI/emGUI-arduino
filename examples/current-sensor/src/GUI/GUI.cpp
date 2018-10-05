@@ -17,6 +17,8 @@ bool skipDelay = false;
 static xStatusBar * statusbar;
 static WindowHeader::uniquePtr header;
 static WiFiWidget::uniquePtr wifiWidget;
+static xButton * crossButton;
+
 
 bool WindowPlot::onOpen(){
   skipDelay = true;
@@ -106,6 +108,14 @@ public:
         WindowPlot::getInstance()->open();
         return true;
     });
+
+  auto closeBtn = pxButtonCreateFromImage(column1, row2, "/cross.bmp", xThis);
+  vButtonSetOnClickHandler(closeBtn, 
+    [](xWidget *) {
+      Serial.println("AAAAAAAAA A A A A A A A A A A");
+      vWindowManagerCloseActiveWindow();
+      return true;
+  });
 
   
 	auto btn2 = pxButtonCreateFromText(column2, row1, 60, 60, "0", xThis);
@@ -210,9 +220,20 @@ bool bGUIonWindowManagerCreateHandler(xWidget *) {
   header = std::make_unique<WindowHeader>(usX, usY, usW, 0, getSmallFont(), EMGUI_WINDOW_HEADER_LENGTH, statusbar);
 
   usX = 5;
-  usY = usWidgetGetH(statusbar) / 2 - pxDrawHDL()->usGetPictureH("/wf/0.bmp") / 2 - 9;
+  usY = usWidgetGetH(statusbar) / 2 - pxDrawHDL()->usGetPictureH("/wf/0.bmp") / 2 - 2;
   wifiWidget = std::make_unique<WiFiWidget>(usX, usY, statusbar);
   WindowMain::getInstance()->open();
+
+  usX = usWidgetGetW(statusbar) - pxDrawHDL()->usGetPictureW("/cross.bmp") - 1 ;
+  usY = 1;
+  
+
+  /*crossButton = pxButtonCreateFromImage(usX, usY, "/cross.bmp", statusbar);
+  vButtonSetOnClickHandler((xWidget*)crossButton, 
+    [](xWidget *) {
+      vWindowManagerCloseActiveWindow();
+      return true;
+  });*/
   return true;
 }
 

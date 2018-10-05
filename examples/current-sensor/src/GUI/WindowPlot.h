@@ -39,12 +39,12 @@ public:
 	}
 	xLabel * currentMonitor;
 	xLabel * currentMonitorHeader;
-	uint16_t data;
+	short data;
 	short passDelay = 30;
 	bool onOpen();
 	bool onClose();
-	void update(short data) {
-		this->data = data;
+	void update(float data) {
+		this->data = (short)(data * 10);
 		vPlotAddValue(&plotLead, data);
 		//long data = plotLead.psData[plotLead.ulWritePos];
 	} 

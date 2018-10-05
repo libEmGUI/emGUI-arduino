@@ -25,11 +25,11 @@
 
 #include "src/FIR-filter-class/filt.h"
 #include "src/IIR/IIR_filter.h" 
-#include <INA219.h>
+#include <Adafruit_INA219.h>
 
 static Filter lpf(LPF, 51, AFE_DATA_RATE / 1000.f, 0.05);
 static IIR_filter iir_f(1.f / AFE_DATA_RATE);
-INA219 monitor;
+Adafruit_INA219 monitor;
 extern "C" {
 #include "user_interface.h"
 }
@@ -113,15 +113,16 @@ void setup() {
   deviceState::getInstance(); //init device state object, read configs and set callbacks
   deviceState::getInstance()->ssid=initWifi(); // init wifi connection
   monitor.begin();
+  monitor.setCalibration_32V_1A();
 }
 
-void handleData(int data) {
+void handleData(float data) {
   auto window = WindowPlot::getInstance(false);
-	auto fData = (int16_t)(lpf.do_sample(data));
+	auto fData = lpf.do_sample(data);
 	if (window) window->update(data);
 }
 
-void loop(void) {
+void loop() {
   auto delayTime = 60;
   if (periph->loop()) {
   	vGUIHandlePeriph(EV_HW_SYS_INT, 0);
@@ -135,14 +136,18 @@ void loop(void) {
 
   // emGUI loop
   vWindowManagerDraw();
-  Serial.print(".");
+  
 
   deviceState::getInstance()->loop();
     if (a>=250 ) a =0;
     else a++;
-    handleData((int)(monitor.shuntCurrent()*100) * 100);
+    handleData(monitor.getCurrent_mA());
   //handleData(a);
 
-  if (!skipDelay)
-  delay(delayTime);
+  if (!skipDelay) {
+    delay(delayTime);
+    Serial.print(".");
+  } else {
+    Serial.printf("I(mA): %2f, V(mV): %2f, P(mW):%2f \n",monitor.getCurrent_mA(), monitor.getBusVoltage_V(), monitor.getPower_mW());
+  }
 }
