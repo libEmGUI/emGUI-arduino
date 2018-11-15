@@ -5,19 +5,10 @@
 #include "WindowPack.h"
 using namespace emGUI;
 
-bool skipDelay = false;
 static xStatusBar * statusbar;
 static WindowHeader::uniquePtr header;
 static xButton * crossButton;
 
-bool WindowPlot::onOpen(){
-  skipDelay = true;
-  return false;
-}
-bool WindowPlot::onClose(){
-  skipDelay = false;
-  return false;
-}
 
 bool MainWindowCloseRequestHdl(xWidget *);
 
@@ -97,16 +88,7 @@ public:
   }
 
   bool onCloseRequest() {
-    auto dial = iModalDialogOpen(0, "ny", "Close?", "You are about to close main app! Are you sure?");
-
-    vModalDialogSetHandler(dial, NULL, [](char cBtn, void* ctx) -> bool {
-		(void)ctx;
-      if (cBtn == 'y'){
-        //TODO: poweroff
-      }
-      return true; // dialog can close on this button
-    });
-    return true; //allow window close
+    return false; //allow window close
   }
 };
 

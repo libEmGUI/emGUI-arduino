@@ -5,22 +5,21 @@
 #include "WindowPack.h"
 using namespace emGUI;
 
-
-
 class WindowPlot : public DisposableWindow<WINDOW_PLOT, WindowPlot> {
 public:
 	xPlotData_t plotLead;
 	void create() {				
 		vWindowSetHeader(xThis, "Plot, mA");
-		
 		plotLead.bDataFilled = false;
 		plotLead.bWriteEnabled = false;
 		plotLead.sDataDCOffset = -500;
 		plotLead.sName = "Test";
 		plotLead.ulElemCount = AFE_DATA_RATE * 10;
 		plotLead.psData = (short *)malloc(sizeof(*plotLead.psData)*plotLead.ulElemCount);
+		memset(plotLead.psData, 0, sizeof(*plotLead.psData)*plotLead.ulElemCount);
 		plotLead.ulWritePos = 0;
 
+		Serial.println("Create window");
 		plot = pxPlotCreate(0, 0, EMGUI_LCD_WIDTH, EMGUI_LCD_HEIGHT - EMGUI_STATUS_BAR_HEIGHT -20, xThis, &plotLead);
 		vPlotSetScale(plot, 250);   // Size of grid cell (yval)
 
@@ -34,15 +33,15 @@ public:
 	}
 	
  	xPlot * plot;
-	virtual bool onCloseRequest() {
-		return false;
-	}
+
 	xLabel * currentMonitor;
 	xLabel * currentMonitorHeader;
 	short data;
 	short passDelay = 30;
-	bool onOpen();
-	bool onClose();
+	bool onClose(){
+		free(plotLead.psData);
+		return false;
+	};
 	void update(float data) {
 		this->data = (short)(data * 10);
 		vPlotAddValue(&plotLead, data);

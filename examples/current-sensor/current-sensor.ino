@@ -63,19 +63,10 @@ void handleData(float data) {
 }
 
 void loop() {
-  auto delayTime = 60;
-
   touch.handleTouch(true);
-
   // emGUI loop
   vWindowManagerDraw();
 
   handleData(monitor.getCurrent_mA());
-
-  if (!skipDelay) {
-    delay(delayTime);
-    Serial.print(".");
-  } else {
-    Serial.printf("I(mA): %2f, V(mV): %2f, P(mW):%2f \n", monitor.getCurrent_mA(), monitor.getBusVoltage_V(), monitor.getPower_mW());
-  }
+  Serial.printf("I(mA): %2f, V(mV): %2f, P(mW):%2f \n", monitor.getCurrent_mA(), monitor.getBusVoltage_V(), monitor.getPower_mW());
 }

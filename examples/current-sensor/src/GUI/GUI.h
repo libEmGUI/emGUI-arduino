@@ -16,8 +16,6 @@ typedef enum {
 
 xPlotData_t * pxGUIGetPlotData();
 
-extern bool skipDelay;
-
 void vGUIHandlePeriph(eHW event, int32_t param1);
 
 void GUIInit();
