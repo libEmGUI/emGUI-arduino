@@ -1,7 +1,6 @@
 #pragma once
 
 #include "WindowPack.h"
-#include <ESP8266WiFi.h>
 
 using namespace emGUI;
 class ButtonWithBG : public Button, public WidgetCaster<ButtonWithBG> {

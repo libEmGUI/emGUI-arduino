@@ -4,27 +4,15 @@
 #include <Arduino.h>
 #include <emGUI.h>
 #include "../../emGUIGlue.h"
-#include "../../Peripherial.h"
-#include "../common/Config.hpp"
 #include "../common/Stopwatch.h"
 #include "../common/UpdatableValue.hpp"
-#include "deviceState.hpp"
 
 
 
 typedef enum {
 	EV_HW_SYS_INT = 100,
-	EV_HW_TOUCH_INT = 101,
-	EV_WIFI = 102,
-	EV_MQTT,
-
-}eHW;
-
-typedef enum {
-	HW_CON = 1,
-	HW_DISCON = -1,
-	HW_GOTIP = 2
-}eWiFiStatus;
+	EV_HW_TOUCH_INT = 101
+} eHW;
 
 xPlotData_t * pxGUIGetPlotData();
 

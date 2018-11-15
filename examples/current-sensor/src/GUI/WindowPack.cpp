@@ -1,7 +1,8 @@
-﻿#include "WindowPack.h"
-#include <Fonts/FreeSans9pt7b.h>
-#include <Fonts/FreeSansBold9pt7b.h>
-#include <Fonts/FreeSans24pt7b.h>
+﻿#include "Arduino.h"
+#include "WindowPack.h"
+#include "./../TFT/Fonts/GFXFF/FreeSans9pt7b.h"
+#include "./../TFT/Fonts/GFXFF/FreeSansBold9pt7b.h"
+#include "./../TFT/Fonts/GFXFF/FreeSans24pt7b.h"
 #include "./../UTF8-fonts/customfonts.h"
 
 const GFXfont * bigFont[] = { &Roboto_Regular24pt7b , &Roboto_Regular24pt8bRUS, NULL };
