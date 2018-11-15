@@ -2,19 +2,14 @@
 
 #include "SPI.h"
 #include "src/TFT/TFT_ILI9341_ESP.h"
-
 #include "FS.h"
 
-#include "Fonts/FreeSans9pt7b.h"
-#include "Fonts/FreeSansBold9pt7b.h"
+#include "src/TFT/Fonts/GFXFF/FreeSans9pt7b.h"
+#include "src/TFT/Fonts/GFXFF/FreeSansBold9pt7b.h"
 #include "src/UTF8-fonts/MyriadPro_Regular9pt8b.h"
 
 #include <cstddef>
-
 #include <emGUI_port_opts.h>
-
-
-
 
 template<typename s, int t> struct check_size {
   static_assert(sizeof(s) == t, "wrong size");
@@ -437,7 +432,6 @@ void vGUIGlueInit(){
   EMGUI_LCD_WIDTH = 320;
   EMGUI_STATUS_BAR_HEIGHT = 26;
   if (!tft){
-    SPIFFS.begin();
     bmFile = new BMPFile();
     tft =  new TFT_ILI9341_ESP();  // Use hardware SPI
 

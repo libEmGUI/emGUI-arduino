@@ -10,13 +10,7 @@
 
 typedef enum {
 	WINDOW_MENU,
-	WINDOW_MALFUNCTION,
 	WINDOW_TP_TEST,
-	WINDOW_BATTERY,
-	WINDOW_WIFI,
-	WINDOW_IDLE,	//WindowIDLE
-	WINDOW_POPUP,	//WindowPopUp
-	WINDOW_SHORT_MESSAGE,
 	WINDOW_PLOT
 }eWindows;
 
@@ -24,22 +18,13 @@ typedef enum {
 #define so 5
 #define bo 14
 
-
 xFont getBigFont();
 xFont getSmallFont();
 xFont getBoldFont();
 
-#include "TimeClock.hpp"
-#include "WiFiWidget.hpp"
+// #include "TimeClock.hpp"
 #include "ButtonWithBg.hpp"
 #include "TextFrame.hpp"
-
-#include "WindowIDLE.h"
 #include "WindowPlot.h"
 
-
-
-
-
 #endif // !_WINDOW_PACK_
-
