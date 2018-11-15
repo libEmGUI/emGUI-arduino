@@ -23,7 +23,7 @@
 //#define EMGUI_DEBUG					1
 
 
-#include <gfxfont.h> // if using UTF8 fonts, Adafruit-GFX should be updated to use uint16 char ranges
+#include "gfxfont.h" // if using UTF8 fonts, Adafruit-GFX should be updated to use uint16 char ranges
 
 #if EMGUI_USE_UTF8_FONTS
 #define EMGUI_XFONT_TYPE const GFXfont **
@@ -33,14 +33,7 @@
 
 #define EMGUI_XPICTURE_TYPE  const char*
 
-// STATUSBAR STORY
 
-#define EMGUI_COLOR_MENU_HEADER_TEXT EMGUI_COLOR_BLACK
-
-#define EMGUI_COLOR_STATUS_BAR_BG EMGUI_COLOR_WHITE 
-
-
-#define EMGUI_COLOR_SW_BLUE 0x4C59
 
 
 #endif // !ARDIUNO_OPTS_H

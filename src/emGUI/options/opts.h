@@ -32,95 +32,50 @@ typedef EMGUI_XFONT_TYPE			xFont; //TODO: Add GFXFont segmented struct to allow 
 #endif
 
 // Dimensions
-
-#ifndef EMGUI_MODAL_DLG_BTN_SPACING
-#define EMGUI_MODAL_DLG_BTN_SPACING	100
-#endif
-
-#ifndef EMGUI_LCD_WIDTH
-#define EMGUI_LCD_WIDTH				240
-#endif
-
-#ifndef EMGUI_LCD_HEIGHT
-#define EMGUI_LCD_HEIGHT			240
-#endif
-
-#ifndef EMGUI_STATUS_BAR_HEIGHT
-#define EMGUI_STATUS_BAR_HEIGHT		26
-#endif
+extern uint16_t EMGUI_LCD_WIDTH;
+extern uint16_t EMGUI_LCD_HEIGHT;
+extern uint16_t EMGUI_STATUS_BAR_HEIGHT; 
+extern uint16_t EMGUI_MODAL_DLG_BTN_SPACING;
 
 // String limits
-
-#ifndef EMGUI_WINDOW_HEADER_LENGTH
-#define EMGUI_WINDOW_HEADER_LENGTH	25
-#endif
-
-#ifndef EMGUI_LABEL_MAX_LENGTH
-#define EMGUI_LABEL_MAX_LENGTH		1000
-#endif
-
-#ifndef EMGUI_DEBUG
-#define EMGUI_DEBUG					0
-#endif
+extern uint16_t EMGUI_WINDOW_HEADER_LENGTH;
+extern uint16_t EMGUI_LABEL_MAX_LENGTH;
+extern uint16_t EMGUI_DEBUG;
 
 // GUI COLORS
 
 // RGB565 definition 
-#define EMGUI_COLOR_SEA_5 0x02AC	// Sea colors map from drakest to lightest
-#define EMGUI_COLOR_SEA_4 0x1B2E
-#define EMGUI_COLOR_SEA_3 0x0413
-#define EMGUI_COLOR_SEA_2 0x3599
-#define EMGUI_COLOR_SEA_1 0x5DD9
+extern uint16_t EMGUI_COLOR_SEA_5; 		// Blue colors map from drakest to lightest
+extern uint16_t EMGUI_COLOR_SEA_4;
+extern uint16_t EMGUI_COLOR_SEA_3;
+extern uint16_t EMGUI_COLOR_SEA_2;
+extern uint16_t EMGUI_COLOR_SEA_1;
 
-#define EMGUI_COLOR_BROWN_5 0xA280	// Earth colors map from drakest to lightest
-#define EMGUI_COLOR_BROWN_4 0xBBA5
-#define EMGUI_COLOR_BROWN_3 0xFBC0
-#define EMGUI_COLOR_BROWN_2 0xFCC7
-#define EMGUI_COLOR_BROWN_1 0xFDAD
+extern uint16_t EMGUI_COLOR_BROWN_5;	// Brown colors map from drakest to lightest
+extern uint16_t EMGUI_COLOR_BROWN_4;
+extern uint16_t EMGUI_COLOR_BROWN_3;
+extern uint16_t EMGUI_COLOR_BROWN_2;
+extern uint16_t EMGUI_COLOR_BROWN_1;
 
-#define EMGUI_COLOR_WHITE	0xFFFF
-#define EMGUI_COLOR_GRAY	0xC618
-#define EMGUI_COLOR_BLACK	0
+extern uint16_t EMGUI_COLOR_WHITE;
+extern uint16_t EMGUI_COLOR_GRAY;
+extern uint16_t EMGUI_COLOR_BLACK;
 
-#define EMGUI_COLOR_RED     0xF800
-#define EMGUI_COLOR_GREEN   0x7E0
-#define EMGUI_COLOR_BLUE    0x1F
+extern uint16_t EMGUI_COLOR_RED;
+extern uint16_t EMGUI_COLOR_GREEN;
+extern uint16_t EMGUI_COLOR_BLUE;
 
 
 // STATUSBAR STORY
-#ifndef EMGUI_COLOR_MENU_HEADER_TEXT
-#define EMGUI_COLOR_MENU_HEADER_TEXT EMGUI_COLOR_WHITE //WHITE
-#endif
-
-#ifndef EMGUI_COLOR_STATUS_BAR_BG
-#define EMGUI_COLOR_STATUS_BAR_BG EMGUI_COLOR_SEA_5 //light-blue
-#endif
-
-#ifndef EMGUI_COLOR_MESSAGE_TEXT
-#define EMGUI_COLOR_MESSAGE_TEXT EMGUI_COLOR_BLACK
-#endif
-
-#ifndef EMGUI_MENU_BUTTON_LABEL_TEXT_COLOR
-#define EMGUI_MENU_BUTTON_LABEL_TEXT_COLOR EMGUI_COLOR_BLACK
-#endif
-
-#ifndef EMGUI_MENU_BUTTON_LABEL_BG_COLOR
-#define EMGUI_MENU_BUTTON_LABEL_BG_COLOR EMGUI_COLOR_WHITE
-#endif
+extern uint16_t EMGUI_COLOR_MENU_HEADER_TEXT; 
+extern uint16_t EMGUI_COLOR_STATUS_BAR_BG;
+extern uint16_t EMGUI_COLOR_MESSAGE_TEXT;
+extern uint16_t EMGUI_MENU_BUTTON_LABEL_TEXT_COLOR;
+extern uint16_t EMGUI_MENU_BUTTON_LABEL_BG_COLOR;
 
 // PLOT Colors
-
-#ifndef EMGUI_COLOR_PLOT_BACKGROUND
-#define EMGUI_COLOR_PLOT_BACKGROUND EMGUI_COLOR_WHITE
-#endif
-
-#ifndef EMGUI_COLOR_PLOT_GRIDS
-#define EMGUI_COLOR_PLOT_GRIDS EMGUI_COLOR_SEA_1
-#endif
-
-#ifndef EMGUI_COLOR_PLOT_SCALE_MARKER
-#define EMGUI_COLOR_PLOT_SCALE_MARKER    EMGUI_COLOR_BROWN_5
-#endif
-
+extern uint16_t EMGUI_COLOR_PLOT_BACKGROUND;
+extern uint16_t EMGUI_COLOR_PLOT_GRIDS;
+extern uint16_t EMGUI_COLOR_PLOT_SCALE_MARKER;
 
 #endif // !OPTS_H
