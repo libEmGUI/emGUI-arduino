@@ -12,21 +12,18 @@
 #include "src/GUI/GUI.h"
 #include "emGUIGlue.h"
 #include "src/GUI/WindowPack.h"
-
 #include "src/TouchWrapper/TouchWrapper.h"
-#include "src/common/I2CBitbanger.h"
-#include "src/common/Timeout.hpp" 
 #include <Adafruit_INA219.h>
 #include "src/FIR-filter-class/filt.h"
-// #include "src/IIR/IIR_filter.h" 
 
 extern "C" {
   #include "user_interface.h"
 }
 #include "User_Setup.h"
 
+// Signal filter
 Filter lpf(LPF, 51, AFE_DATA_RATE / 1000.f, 0.05);
-// IIR_filter iir_f(1.f / AFE_DATA_RATE);
+// Current (and voltage in high side) monitor 
 Adafruit_INA219 monitor;
 TouchWrapper touch;
 
@@ -44,7 +41,7 @@ void setup() {
   Serial.println(F("Ready"));
   SPIFFS.begin();
 
-  I2CBitbanger(SDA_PIN, SCK_PIN);
+  Wire.begin(SDA_PIN, SCK_PIN);
   touch.init();
 
   // Setup emGUI
@@ -52,10 +49,12 @@ void setup() {
   // Start GUI
   GUIInit();
 
+  // setup and start INA219 current monitor
   monitor.begin();
   monitor.setCalibration_32V_1A();
 }
 
+// To reduce noise in signal we use filter 
 void handleData(float data) {
   auto window = WindowPlot::getInstance(false);
 	auto fData = lpf.do_sample(data);

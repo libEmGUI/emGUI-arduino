@@ -1,5 +1,4 @@
-#ifndef _WINDOW_PAGE_WINDOW_PLOT_
-#define _WINDOW_PAGE_WINDOW_PLOT_
+#pragma once
 
 
 #include "WindowPack.h"
@@ -37,7 +36,7 @@ public:
 	xLabel * currentMonitor;
 	xLabel * currentMonitorHeader;
 	short data;
-	short passDelay = 30;
+	short passDelay = 60;
 	bool onClose(){
 		free(plotLead.psData);
 		return false;
@@ -50,7 +49,8 @@ public:
 
 	bool onDrawUpdate(){
 		static char textBuffer[80];
-		static int lastMillis = millis();
+		static auto lastMillis = millis();
+
 		if (millis() - lastMillis > passDelay) {
 			sprintf (textBuffer, "%d\0", data / 10);
 			pcLabelSetText(currentMonitor, textBuffer);
@@ -60,5 +60,3 @@ public:
 	}
 
 };
-
-#endif // _WINDOW_PAGE_WINDOW_PLOT_
