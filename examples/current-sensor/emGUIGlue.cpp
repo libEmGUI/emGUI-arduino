@@ -50,8 +50,7 @@ static xDraw_t LCD;
 
 class BMPFile{
 public:
-  BMPFile(): _w(0), _h(0), _offs(0){
-
+  BMPFile(): _w(0), _h(0), _offs(0) {
   }
 
   operator bool() const{

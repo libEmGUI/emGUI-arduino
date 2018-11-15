@@ -3,16 +3,13 @@
 #include <functional>
 #include <memory>
 
-
 using namespace emGUI;
 
 static xStatusBar * statusbar;
 static WindowHeader::uniquePtr header;
 static xButton * crossButton;
 
-
 bool MainWindowCloseRequestHdl(xWidget *);
-
 
 // Action on interface creating
 // Init statusbar and open main window
@@ -48,6 +45,6 @@ bool bGUIonWindowManagerCreateHandler(xWidget *) {
   return true;
 }
 
-void GUIInit(){
+void GUIInit() {
 	pxWindowManagerCreate(bGUIonWindowManagerCreateHandler);
 }

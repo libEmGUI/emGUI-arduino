@@ -1,5 +1,4 @@
-#ifndef _TOUCH_WRAPPER_
-#define _TOUCH_WRAPPER_
+#pragma once
 
 #include <XPT2046_Touchscreen.h>
 
@@ -11,12 +10,11 @@ public:
 	TouchWrapper() : XPT2046_Touchscreen(TOUCH_CS) {}
 
 	void init(bool debug = false);
-	void touchIntr();
-	void printTouchRegs();
 	bool handleTouch(bool flag);
 
 protected: 
 	volatile xTouchEvent currentTouch;
 	volatile bool bTouchInt = false;
+	bool alreadyPoped = true;
+	bool lastTouched = false;
 };
-#endif //_TOUCH_WRAPPER_

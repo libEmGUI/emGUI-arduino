@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "WindowPack.h"
 using namespace emGUI;
 

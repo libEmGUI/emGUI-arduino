@@ -2,7 +2,7 @@
 *  main file 
 *  
 *  TFT configs are in User_Setup.h
-*  Flexibity 2017 // Roman Savrulin, Mikhail Natalenko
+*  fbits.tech 2018 // Roman Savrulin, Mikhail Natalenko
 */
 
 #include <Wire.h>
