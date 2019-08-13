@@ -30,11 +30,10 @@ cache:
 
 env:
     - PLATFORMIO_CI_SRC=examples/current-sensor
-    - PLATFORMIO_CI_SRC=path/to/test/directory
 
 install:
     - pip install -U platformio
     - platformio update
 
 script:
-    - platformio ci --lib="."
+    - platformio ci --lib="." --board=nodemcuv2
