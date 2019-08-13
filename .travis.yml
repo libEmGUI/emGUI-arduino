@@ -34,6 +34,7 @@ env:
 install:
     - pip install -U platformio
     - platformio update
+	- platformio lib -g install XPT2046_Touchscreen@26b691b2c8, Adafruit INA219@1.0.5
 
 script:
     - platformio ci --lib="." --board=nodemcuv2
