@@ -1,5 +1,6 @@
 emGUI v1.0.0
 =====
+[![Build Status](https://travis-ci.org/libEmGUI/emGUI-arduino.svg?branch=master)](https://travis-ci.org/libEmGUI/emGUI-arduino)
 
 C GUI Library for Arduino. 
 
