@@ -2,7 +2,7 @@
 #define _GUI_H_
 
 #include <Arduino.h>
-#include "emGUIGlue.h"
+#include "../../emGUIGlue.h"
 
 typedef enum {
 	WINDOW_MENU,

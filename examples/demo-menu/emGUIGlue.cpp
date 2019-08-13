@@ -44,7 +44,6 @@ check_size<BITMAPINFOHEADER, 40> CHECK_BITMAPINFOHEADER;
 
 #define pgm_read_pointer(addr) ((void *)pgm_read_dword(addr))
 
-//SPI9Class SPI9(TFT_DC);                   // construct global SPI9 instance here, where the dcPin is known
 static TFT_ILI9341_ESP *tft = NULL;
 static xDraw_t LCD;
 
@@ -426,6 +425,7 @@ void TFTWake(){
 }
 
 void vGUIGlueInit(){
+  SPIFFS.begin();
   // Config EM_GUI opts 
   EMGUI_LCD_WIDTH = 320;
   EMGUI_STATUS_BAR_HEIGHT = 26;

@@ -1,14 +1,12 @@
-emGUI v1.0.0
+emGUI v2.0.0
 =====
 [![Build Status](https://travis-ci.org/libEmGUI/emGUI-arduino.svg?branch=master)](https://travis-ci.org/libEmGUI/emGUI-arduino)
 
-C GUI Library for Arduino. 
+C/C++ GUI Library for Arduino. 
 
-Some photos 
-
+Some photos
 
 ![Main menu](Pictures/fa314fcf-e02c-4a30-bb53-9c6628b62733.jpg)![Another photo](Pictures/af27046c-2f33-44af-a220-e1cf2456dcb5.jpg)
-
 
 This lib could work not only with Arduino, so we made an [example with visual studio](https://github.com/libEmGUI/emGUI-example) (will be submited soon)
 ![Example on PC: main menu](Pictures/main%20menu.PNG)![Example on PC: modal dialog](Pictures/modal%20dialog.PNG)![Example on PC: Big colorful image](Pictures/Image.PNG)![Example on PC: Multiline textbox with left allign](Pictures/Text%20box.PNG)
