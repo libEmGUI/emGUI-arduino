@@ -3,6 +3,8 @@
 
 #include <emGUI.h>
 
+
+
 void TFTSleep();
 
 void TFTWake();
@@ -11,5 +13,6 @@ void vGUIGlueInit();
 
 xFont xGetDefaultFont();
 void vGUIGlueSetCtx(void *);
+
 
 #endif

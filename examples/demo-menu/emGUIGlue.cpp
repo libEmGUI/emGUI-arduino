@@ -2,13 +2,14 @@
 
 #include "SPI.h"
 #include "src/TFT/TFT_ILI9341_ESP.h"
-#include "src/TFT/SPI9.h"
-
 #include "FS.h"
 
-#include "Fonts/FreeSans9pt7b.h"
+#include "src/TFT/Fonts/GFXFF/FreeSans9pt7b.h"
+#include "src/TFT/Fonts/GFXFF/FreeSansBold9pt7b.h"
+#include "src/UTF8-fonts/MyriadPro_Regular9pt8b.h"
 
 #include <cstddef>
+#include <emGUI_port_opts.h>
 
 template<typename s, int t> struct check_size {
   static_assert(sizeof(s) == t, "wrong size");
@@ -43,14 +44,12 @@ check_size<BITMAPINFOHEADER, 40> CHECK_BITMAPINFOHEADER;
 
 #define pgm_read_pointer(addr) ((void *)pgm_read_dword(addr))
 
-//SPI9Class SPI9(TFT_DC);                   // construct global SPI9 instance here, where the dcPin is known
 static TFT_ILI9341_ESP *tft = NULL;
 static xDraw_t LCD;
 
 class BMPFile{
 public:
-  BMPFile(): _w(0), _h(0), _offs(0){
-
+  BMPFile(): _w(0), _h(0), _offs(0) {
   }
 
   operator bool() const{
@@ -117,17 +116,55 @@ protected:
 
 static BMPFile *bmFile = NULL;
 
-static uint16_t usFontGetH(xFont pubFont) {
-  const GFXfont *gfxFont = pubFont;
-  uint8_t  height = pgm_read_byte (&gfxFont->yAdvance);
-  return (uint16_t) height;
+typedef enum {
+  UTF_WAIT_FIRST = 0,
+  UTF_WAIT_SECOND = 1
+}eUTFstate;
+
+typedef struct {
+  eUTFstate state;
+  uint16_t buffer;
+} tUTFstateMachine;
+
+bool vGUICheckUTF(uint8_t data, tUTFstateMachine * t_status) {      //returns true if we got whole char
+  static const uint8_t firstMarker= 0b11000000;
+  static const uint8_t firstMask  = 0b11100000;
+
+  static const uint8_t secondMarker  = 0b10000000;
+  static const uint8_t secondMask    = 0b11000000;
+  
+  switch (t_status->state) {
+  case UTF_WAIT_FIRST:
+    if ((data & firstMask) == firstMarker) {
+      t_status->state = UTF_WAIT_SECOND;// we catched first symbol
+      t_status->buffer = 0;
+      t_status->buffer = (data & ~firstMask) << 6;
+      return false;
+    }
+    
+    t_status->buffer = data;
+    return true;
+
+  case UTF_WAIT_SECOND:
+    t_status->state = UTF_WAIT_FIRST;
+    if ((data & secondMask) == secondMarker) {
+      t_status->buffer |= data & ~secondMask;
+      return true;
+    }
+    if (data < 0x80) { //can be valid ASCII character
+      t_status->buffer = data;
+      return true;
+    }
+    t_status->buffer = 0;
+    return false;
+  }
+  return false;
 }
 
-static xPicture prvGetPicture(const char * picName) {
-  if(strcmp(picName, "SB_CROSS.pic") == 0) //special picture name for status-bar cross
-    return "/cross16px.bmp";
-
-  return picName; //if we use picture names, to get them from FS, we should pass name as is
+static uint16_t usFontGetH(xFont pubFont) {
+  const GFXfont *gfxFont = *pubFont;
+  uint8_t  height = pgm_read_byte (&gfxFont->yAdvance);
+  return (uint16_t) height;
 }
 
 static xModalDialogPictureSet prvGetPicSet(char cType) {
@@ -143,23 +180,48 @@ static xModalDialogPictureSet prvGetPicSet(char cType) {
     break;
   case 'o':
     xPicSet.strLabel = "OK";
-    xPicSet.xPicMain = "/ok.bmp"; //for debug purposses use 59 pixels ok picture
+    xPicSet.xPicMain = "/ok59.bmp"; //for debug purposses use 59 pixels ok picture
     break;
   default:
     xPicSet.strLabel = "OK";
-    xPicSet.xPicMain = "/ok.bmp";
+    xPicSet.xPicMain = "/ok59.bmp";
     break;
   }
 
   return xPicSet;
 }
 
+static const GFXfont * prvGetFontSegment(uint16_t ch, xFont f) {
+#if EMGUI_USE_UTF8_FONTS
+  while (*f) {
+    uint16_t first = (uint16_t)pgm_read_word(&(*f)->first);
+    uint16_t last = (uint16_t)pgm_read_word(&(*f)->last);
+
+    if (ch >= first && ch <= last)
+      return *f;
+    f++;
+  }
+#else
+  return f;
+#endif // EMGUI_USE_UTF8_FONTS
+  return NULL;
+}
+
 static uint16_t ucFontGetCharW(char cChar, xFont pubFont) {
-  const GFXfont *gfxFont = pubFont;
-  if (cChar < (uint8_t)pgm_read_byte(&gfxFont->first) || cChar > (uint8_t)pgm_read_byte(&gfxFont->last))
+  static tUTFstateMachine machine = { UTF_WAIT_FIRST,0 };
+  uint16_t utfChar;
+  if (!vGUICheckUTF(cChar, &machine)) {
     return 0;
-  cChar -= (uint8_t)pgm_read_byte(&gfxFont->first);
-  GFXglyph *glyph  = &(((GFXglyph *)pgm_read_pointer(&gfxFont->glyph))[cChar]);
+  }
+  else {
+    utfChar = machine.buffer;
+  }
+  const GFXfont *gfxFont = prvGetFontSegment(utfChar, pubFont);
+  if (!gfxFont)
+    return 0;
+
+  utfChar -= (uint16_t)pgm_read_word(&gfxFont->first);
+  GFXglyph *glyph  = &(((GFXglyph *)pgm_read_pointer(&gfxFont->glyph))[utfChar]);
 
   uint8_t  w  = pgm_read_byte(&glyph->xAdvance);
   return (uint16_t) w;
@@ -184,6 +246,7 @@ static void vRectangle(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usY
   if (!tft)
     return;
   if (bFill) {
+
     tft->fillRect(usX0, usY0, usX1 - usX0 + 1, usY1 - usY0 + 1, usColor);
   } else {
     tft->drawRect(usX0, usY0, usX1 - usX0 + 1, usY1 - usY0 + 1, usColor);
@@ -191,38 +254,45 @@ static void vRectangle(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usY
 }
 
 static void vPutChar( uint16_t usX, uint16_t usY, char cChar, xFont pubFont, uint16_t usColor, uint16_t usBackground, bool bFillBg) {
-  
-    const GFXfont *gfxFont = pubFont;
-
-    if (cChar < (uint8_t)pgm_read_byte(&gfxFont->first) || cChar > (uint8_t)pgm_read_byte(&gfxFont->last))
-      return;
-
-    cChar -= (uint8_t)pgm_read_byte(&gfxFont->first);
-    GFXglyph *glyph  = &(((GFXglyph *)pgm_read_pointer(&gfxFont->glyph))[cChar]);
-    uint8_t  *bitmap = (uint8_t *)pgm_read_pointer(&gfxFont->bitmap);
-
-    uint16_t bo = pgm_read_word(&glyph->bitmapOffset);
-    uint8_t  w  = pgm_read_byte(&glyph->width),
-             h  = pgm_read_byte(&glyph->height);
-    int8_t   xo = pgm_read_byte(&glyph->xOffset),
-             yo = pgm_read_byte(&glyph->yOffset);
-    uint8_t  xx, yy, bits = 0, bit = 0;
-
-    auto x = usX;
-    auto y = usY + usFontGetH(pubFont) * 3 / 4 - 1;
+  static tUTFstateMachine machine = { UTF_WAIT_FIRST,0 };
+  uint16_t utfChar;
+  if (!vGUICheckUTF(cChar, &machine)) {
+    return ;
+  }
+  else {
+    utfChar = machine.buffer;
+  }
+  const GFXfont *gfxFont = prvGetFontSegment(utfChar, pubFont);
+  if (!gfxFont)
+    return ;
 
 
-    for(yy=0; yy<h; yy++) {
-        for(xx=0; xx<w; xx++) {
-            if(!(bit++ & 7)) {
-              bits = pgm_read_byte(&bitmap[bo++]);
-            }
-            if(bits & 0x80) {
-              tft->drawPixel(x+xo+xx, y+yo+yy, usColor);
-            }
-            bits <<= 1;
-        }
-    }
+  utfChar -= (uint16_t)pgm_read_word(&gfxFont->first);
+  GFXglyph *glyph  = &(((GFXglyph *)pgm_read_pointer(&gfxFont->glyph))[utfChar]);
+  uint8_t  *bitmap = (uint8_t *)pgm_read_pointer(&gfxFont->bitmap);
+
+  uint16_t bo = pgm_read_word(&glyph->bitmapOffset);
+  uint8_t  w  = pgm_read_byte(&glyph->width),
+           h  = pgm_read_byte(&glyph->height);
+  int8_t   xo = pgm_read_byte(&glyph->xOffset),
+           yo = pgm_read_byte(&glyph->yOffset);
+  uint8_t  xx, yy, bits = 0, bit = 0;
+
+  auto x = usX;
+  auto y = usY + usFontGetH(pubFont) * 3 / 4 - 1;
+
+
+  for(yy=0; yy<h; yy++) {
+      for(xx=0; xx<w; xx++) {
+          if(!(bit++ & 7)) {
+            bits = pgm_read_byte(&bitmap[bo++]);
+          }
+          if(bits & 0x80) {
+            tft->drawPixel(x+xo+xx, y+yo+yy, usColor);
+          }
+          bits <<= 1;
+      }
+  }
 
 }
 
@@ -231,13 +301,14 @@ static void vHLine(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usColor
   if (!tft)
     return;
 
+  if (usX0 == usX1) usX1++;
   tft->drawFastHLine(usX0, usY0, usX1 - usX0, usColor);
 }
 
 static void vVLine(uint16_t usX0, uint16_t usY0, uint16_t usY1, uint16_t usColor) {
   if (!tft)
     return;
-
+  if (usY0 == usY1) usY1++;
   tft->drawFastVLine(usX0, usY0, usY1 - usY0, usColor);
 }
 
@@ -245,7 +316,7 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
   if (!tft || !bmFile)
     return;
 
-  //Serial.println(pusPicture);
+  Serial.println(pusPicture);
   if (bmFile->open(pusPicture)){
 
     uint32_t W = bmFile->width();
@@ -259,16 +330,10 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
     dataSize  = dataSize + padding; // in case of odd width we should pad to 4 bytes
     dataSize *= H;
 
-    // Serial.print(W);
-    // Serial.print("x");
-    // Serial.println(H);
-    // Serial.println(dataSize);
-
-    tft->writecommand (ILI9341_MADCTL);
-    tft->writedata(0x80);
-
+    tft->setRotation(5);
     //we need to translate coords with respect to MAXIMUM available resolution for our controller
-    tft->setWindow(sX0, ILI9341_TFTHEIGHT - sY1, sX1, ILI9341_TFTHEIGHT - sY0);
+    //tft->setWindow(sX0, ILI9341_TFTWIDTH - sY1, sX1, ILI9341_TFTHEIGHT - sY0);
+    tft->setWindow(sX0, 240 - sY1, sX1, 240 - sY0);
     //for swapping X and Y
     //tft->setWindow(EMGUI_LCD_WIDTH - sX1, ILI9341_TFTHEIGHT -  sY1, EMGUI_LCD_WIDTH - sX0, ILI9341_TFTHEIGHT - sY0);
 
@@ -313,8 +378,9 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
       }
     }
 
-    tft->writecommand (ILI9341_MADCTL);
-    tft->writedata(0x00);
+    //tft->writecommand (ILI9341_MADCTL);
+    //tft->writedata(0x00);
+    tft->setRotation(1);
   }
 }
 
@@ -338,8 +404,10 @@ static uint16_t usGetPictureH(xPicture pusPicture) {
   return 0;
 }
 
+static const GFXfont * xDefaultFont[] = { &FreeSans9pt7b, &MyriadPro_Regular9pt8b, NULL };
+
 xFont xGetDefaultFont() {
-  return &FreeSans9pt7b;
+  return xDefaultFont;
 }
 
 void TFTSleep(){
@@ -357,8 +425,11 @@ void TFTWake(){
 }
 
 void vGUIGlueInit(){
+  SPIFFS.begin();
+  // Config EM_GUI opts 
+  EMGUI_LCD_WIDTH = 320;
+  EMGUI_STATUS_BAR_HEIGHT = 26;
   if (!tft){
-    SPIFFS.begin();
     bmFile = new BMPFile();
     tft =  new TFT_ILI9341_ESP();  // Use hardware SPI
 
@@ -376,12 +447,12 @@ void vGUIGlueInit(){
     LCD.usFontGetStrW  = &usFontGetStrW;
     LCD.usFontGetStrH  = &usFontGetStrH;
     LCD.xGetDialogPictureSet = prvGetPicSet;
-    LCD.xGetPicture = prvGetPicture;
     LCD.xGetDefaultFont = xGetDefaultFont;
 
     vDrawSetHandler(&LCD);
 
     tft->init();
     tft->fillScreen(TFT_LIGHTGREY);
+    tft->setRotation(1);
   }
 }

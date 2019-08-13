@@ -44,7 +44,6 @@ check_size<BITMAPINFOHEADER, 40> CHECK_BITMAPINFOHEADER;
 
 #define pgm_read_pointer(addr) ((void *)pgm_read_dword(addr))
 
-//SPI9Class SPI9(TFT_DC);                   // construct global SPI9 instance here, where the dcPin is known
 static TFT_ILI9341_ESP *tft = NULL;
 static xDraw_t LCD;
 
@@ -134,8 +133,6 @@ bool vGUICheckUTF(uint8_t data, tUTFstateMachine * t_status) {      //returns tr
   static const uint8_t secondMarker  = 0b10000000;
   static const uint8_t secondMask    = 0b11000000;
   
-  tUTFstateMachine * status = t_status;
-
   switch (t_status->state) {
   case UTF_WAIT_FIRST:
     if ((data & firstMask) == firstMarker) {
@@ -161,6 +158,7 @@ bool vGUICheckUTF(uint8_t data, tUTFstateMachine * t_status) {      //returns tr
     t_status->buffer = 0;
     return false;
   }
+  return false;
 }
 
 static uint16_t usFontGetH(xFont pubFont) {
@@ -427,6 +425,7 @@ void TFTWake(){
 }
 
 void vGUIGlueInit(){
+  SPIFFS.begin();
   // Config EM_GUI opts 
   EMGUI_LCD_WIDTH = 320;
   EMGUI_STATUS_BAR_HEIGHT = 26;

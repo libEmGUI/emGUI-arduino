@@ -4,7 +4,7 @@
 *  TFT configs are in User_Setup.h
 *  fbits.tech 2018 // Roman Savrulin, Mikhail Natalenko
 */
-
+#include <Arduino.h>
 #include <Wire.h>
 #include <Hash.h>
 #include <FS.h>
@@ -16,9 +16,6 @@
 #include <Adafruit_INA219.h>
 #include "src/FIR-filter-class/filt.h"
 
-extern "C" {
-  #include "user_interface.h"
-}
 #include "User_Setup.h"
 
 // Signal filter
@@ -28,20 +25,11 @@ Adafruit_INA219 monitor;
 TouchWrapper touch;
 
 void setup() {
-  // Init serial and start firmware
-  if(digitalRead(UART_RX) == 1) {
-    if(!Serial){
-      Serial.begin(115200);
-      while (!Serial){
-        delay(100);
-      }
-    }
-  }
+  Serial.begin(115200);
 
   Serial.println(F("Ready"));
-  SPIFFS.begin();
 
-  Wire.begin(SDA_PIN, SCK_PIN);
+  Wire.begin(SDA_PIN, SCL_PIN);
   touch.init();
 
   // Setup emGUI
@@ -57,7 +45,7 @@ void setup() {
 // To reduce noise in signal we use filter 
 void handleData(float data) {
   auto window = WindowPlot::getInstance(false);
-	auto fData = lpf.do_sample(data);
+	lpf.do_sample(data);
 	if (window) window->update(data);
 }
 

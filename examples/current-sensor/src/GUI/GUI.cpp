@@ -16,7 +16,7 @@ bool MainWindowCloseRequestHdl(xWidget *);
 bool bGUIonWindowManagerCreateHandler(xWidget *) {
   vWindowManagerSetKeypressHandler([](int iID, uint16_t uEv){
 	  (void)iID;
-    if(uEv = 1)
+    if(uEv == 1)
       vWindowManagerCloseActiveWindow();
 
     return true;

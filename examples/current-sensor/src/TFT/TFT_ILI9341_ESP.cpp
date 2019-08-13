@@ -297,7 +297,7 @@ uint16_t TFT_ILI9341_ESP::readPixel(int32_t x0, int32_t y0)
 ***************************************************************************************/
   uint16_t  TFT_ILI9341_ESP::readcommand16(uint8_t cmd_function, uint8_t index)
 {
-  uint32_t reg;
+  uint32_t reg = 0;
   reg |= (readcommand8(cmd_function, index + 0) <<  8);
   reg |= (readcommand8(cmd_function, index + 1) <<  0);
 
@@ -1808,7 +1808,7 @@ void TFT_ILI9341_ESP::drawLine(int32_t x0, int32_t y0, int32_t x1, int32_t y1, u
 #else
 
 // This is a weeny bit faster
-void TFT_ILI9341_ESP::drawLine(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color)
+void TFT_ILI9341_ESP::drawLine(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, uint32_t color)
 {
   spi_begin();
 
@@ -1916,7 +1916,7 @@ void TFT_ILI9341_ESP::drawLine(int32_t x0, int32_t y0, int32_t x1, int32_t y1, u
 ** Function name:           drawFastVLine
 ** Description:             draw a vertical line
 ***************************************************************************************/
-void TFT_ILI9341_ESP::drawFastVLine(int32_t x, int32_t y, int32_t h, uint32_t color)
+void TFT_ILI9341_ESP::drawFastVLine(uint32_t x, uint32_t y, uint32_t h, uint32_t color)
 {
   // Rudimentary clipping
   if ((x >= _width) || (y >= _height)) return;
@@ -1940,7 +1940,7 @@ void TFT_ILI9341_ESP::drawFastVLine(int32_t x, int32_t y, int32_t h, uint32_t co
 ** Function name:           drawFastHLine
 ** Description:             draw a horizontal line
 ***************************************************************************************/
-void TFT_ILI9341_ESP::drawFastHLine(int32_t x, int32_t y, int32_t w, uint32_t color)
+void TFT_ILI9341_ESP::drawFastHLine(uint32_t x, uint32_t y, uint32_t w, uint32_t color)
 {
   // Rudimentary clipping
   if ((x >= _width) || (y >= _height)) return;
@@ -1962,7 +1962,7 @@ void TFT_ILI9341_ESP::drawFastHLine(int32_t x, int32_t y, int32_t w, uint32_t co
 ** Function name:           fillRect
 ** Description:             draw a filled rectangle
 ***************************************************************************************/
-void TFT_ILI9341_ESP::fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color)
+void TFT_ILI9341_ESP::fillRect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
 {
   // rudimentary clipping (drawChar w/big text requires this)
   if ((x > _width) || (y > _height) || (w==0) || (h==0)) return;
@@ -2233,11 +2233,11 @@ int16_t TFT_ILI9341_ESP::drawChar(unsigned int uniCode, int x, int y, int font)
   }
 
   int width  = 0;
-  int height = 0;
-  uint32_t flash_address = 0;
   uniCode -= 32;
 
 #ifdef LOAD_FONT2
+  int height = 0;
+  uint32_t flash_address = 0;
   if (font == 2)
   {
       // This is faster than using the fontdata structure
@@ -2262,12 +2262,12 @@ int16_t TFT_ILI9341_ESP::drawChar(unsigned int uniCode, int x, int y, int font)
   }
 #endif
 
+#ifdef LOAD_FONT2 // chop out code if we do not need it
   int w = width;
   int pX      = 0;
   int pY      = y;
   byte line = 0;
 
-#ifdef LOAD_FONT2 // chop out code if we do not need it
   if (font == 2) {
     w = w + 6; // Should be + 7 but we need to compensate for width increment
     w = w / 8;
@@ -2448,7 +2448,7 @@ int16_t TFT_ILI9341_ESP::drawChar(unsigned int uniCode, int x, int y, int font)
 ** Description :            draw string with padding if it is defined
 ***************************************************************************************/
 // Without font number, uses font set by setTextFont()
-int16_t TFT_ILI9341_ESP::drawString(const String& string, int poX, int poY)
+int16_t TFT_ILI9341_ESP::drawString(const String& string, uint poX, uint poY)
 {
 	int16_t len = string.length() + 2;
 	char buffer[len];
@@ -2456,7 +2456,7 @@ int16_t TFT_ILI9341_ESP::drawString(const String& string, int poX, int poY)
 	return drawString(buffer, poX, poY, textfont);
 }
 // With font number
-int16_t TFT_ILI9341_ESP::drawString(const String& string, int poX, int poY, int font)
+int16_t TFT_ILI9341_ESP::drawString(const String& string, uint poX, uint poY, int font)
 {
 	int16_t len = string.length() + 2;
 	char buffer[len];
@@ -2465,12 +2465,12 @@ int16_t TFT_ILI9341_ESP::drawString(const String& string, int poX, int poY, int 
 }
 
 // Without font number, uses font set by setTextFont()
-int16_t TFT_ILI9341_ESP::drawString(const char *string, int poX, int poY)
+int16_t TFT_ILI9341_ESP::drawString(const char *string, uint poX, uint poY)
 {
 	return drawString(string, poX, poY, textfont);
 }
 // With font number
-int16_t TFT_ILI9341_ESP::drawString(const char *string, int poX, int poY, int font)
+int16_t TFT_ILI9341_ESP::drawString(const char *string, uint poX, uint poY, int font)
 {
   int16_t sumX = 0;
   uint8_t padding = 1, baseline = 0;
@@ -2581,7 +2581,7 @@ int16_t TFT_ILI9341_ESP::drawString(const char *string, int poX, int poY, int fo
 
   if((padX>cwidth) && (textcolor!=textbgcolor))
   {
-    int16_t padXc = poX+cwidth;
+    uint16_t padXc = poX+cwidth;
 #ifdef LOAD_GFXFF
     if ((font == 1) && (gfxFont))
     {
@@ -2846,7 +2846,7 @@ void TFT_ILI9341_ESP::setTextFont(uint8_t f)
 
   If any other conditions of use have been missed then please raise this as an
   issue on GitHub:
-
+ ****************************************************/
 
 /***************************************************
   The Adafruit_ILI9341 library has been used as a starting point

@@ -1,6 +1,6 @@
 /***************************************************
   Arduino TFT graphics library targetted at ESP8266
-  based boards such as the NodeMCU.
+  based boards. (ESP32 support is planned!)
 
   This library has been derived from the Adafruit_GFX
   library and the associated driver library. See text
@@ -65,11 +65,28 @@
 
 #include <SPI.h>
 
-#ifdef USE_SPI9
-#include "SPI9.h" // addition JZ 27.12.2016
+#define USE_FAST_PINIO
+
+#if defined (ESP32) || defined (D0_USED_FOR_DC)
+  #define DC_C digitalWrite(TFT_DC, LOW)
+  #define DC_D digitalWrite(TFT_DC, HIGH)
+#else
+  #define DC_C GPOC = dcpinmask
+  #define DC_D GPOS = dcpinmask
 #endif
 
-#define USE_FAST_PINIO
+#ifndef NO_PIN_USED_FOR_CS
+  #if defined (ESP32) || defined (D0_USED_FOR_CS)
+    #define CS_L digitalWrite(TFT_CS, LOW)
+    #define CS_H digitalWrite(TFT_CS, HIGH)
+  #else
+    #define CS_L GPOC = cspinmask
+    #define CS_H GPOS = cspinmask
+  #endif
+#else
+	#define CS_L
+    #define CS_H
+#endif
 
 // Swap any type
 template <typename T> static inline void
@@ -88,6 +105,9 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 #define BL_DATUM 6 // Bottom left
 #define BC_DATUM 7 // Bottom centre
 #define BR_DATUM 8 // Bottom right
+#define L_BASELINE  9 // Left character baseline (Line the 'A' character would sit on)
+#define C_BASELINE 10 // Centre character baseline
+#define R_BASELINE 11 // Right character baseline
 
 
 // Change the width and height if required (defined in portrait mode)
@@ -131,6 +151,10 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 #define ILI9341_VSCRSADD 0x37
 #define ILI9341_PIXFMT  0x3A
 
+#define ILI9341_WRDISBV  0x51
+#define ILI9341_RDDISBV  0x52
+#define ILI9341_WRCTRLD  0x53
+
 #define ILI9341_FRMCTR1 0xB1
 #define ILI9341_FRMCTR2 0xB2
 #define ILI9341_FRMCTR3 0xB3
@@ -145,10 +169,12 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 #define ILI9341_VMCTR1  0xC5
 #define ILI9341_VMCTR2  0xC7
 
+#define ILI9341_RDID4   0xD3
+#define ILI9341_RDINDEX 0xD9
 #define ILI9341_RDID1   0xDA
 #define ILI9341_RDID2   0xDB
 #define ILI9341_RDID3   0xDC
-#define ILI9341_RDID4   0xDD
+#define ILI9341_RDIDX   0xDD // TBC
 
 #define ILI9341_GMCTRP1 0xE0
 #define ILI9341_GMCTRN1 0xE1
@@ -203,54 +229,60 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 #define ILI9341_GREENYELLOW 0xAFE5      /* 173, 255,  47 */
 #define ILI9341_PINK        0xF81F
 
+// This is a structure to conveniently hold infomation on the default fonts
+// Stores pointer to font character image address table, width table and height
+
 typedef struct {
-	const unsigned char *chartbl;
-	const unsigned char *widthtbl;
-	unsigned       char height;
+	const uint8_t *chartbl;
+	const uint8_t *widthtbl;
+	uint8_t height;
+	uint8_t baseline;
 	} fontinfo;
 
-// This is a structure to conveniently hold infomation on the fonts
-// Stores font character image address pointer, width table and height
-
+// Now fill the structure
 const PROGMEM fontinfo fontdata [] = {
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
 
-   { 0, 0, 8 },
+   // GLCD font (Font 1) does not have all parameters
+   { 0, 0, 8, 7 },
 
   #ifdef LOAD_FONT2
-   { (const unsigned char *)chrtbl_f16, widtbl_f16, chr_hgt_f16},
+   { (const uint8_t *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16},
   #else
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
   #endif
 
-   { 0, 0, 0 },
+   // Font 3 current unused
+   { 0, 0, 0, 0 },
 
   #ifdef LOAD_FONT4
-   { (const unsigned char *)chrtbl_f32, widtbl_f32, chr_hgt_f32},
+   { (const uint8_t *)chrtbl_f32, widtbl_f32, chr_hgt_f32, baseline_f32},
   #else
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
   #endif
 
-   { 0, 0, 0 },
+   // Font 5 current unused
+   { 0, 0, 0, 0 },
 
   #ifdef LOAD_FONT6
-   { (const unsigned char *)chrtbl_f64, widtbl_f64, chr_hgt_f64},
+   { (const uint8_t *)chrtbl_f64, widtbl_f64, chr_hgt_f64, baseline_f64},
   #else
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
   #endif
 
   #ifdef LOAD_FONT7
-   { (const unsigned char *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s},
+   { (const uint8_t *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s, baseline_f7s},
   #else
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
   #endif
 
   #ifdef LOAD_FONT8
-   { (const unsigned char *)chrtbl_f72, widtbl_f72, chr_hgt_f72}
+   { (const uint8_t *)chrtbl_f72, widtbl_f72, chr_hgt_f72, baseline_f72}
   #else
-   { 0, 0, 0 }
+   { 0, 0, 0, 0 }
   #endif
 };
+
 
 
 // Class functions and variables
@@ -260,49 +292,47 @@ class TFT_ILI9341_ESP : public Print {
 
   TFT_ILI9341_ESP(int16_t _W = ILI9341_TFTWIDTH, int16_t _H = ILI9341_TFTHEIGHT);
 
-  void     init(void), begin(void), // Same - begin included for backwards compatibility
+  void     init(void), begin(void); // Same - begin included for backwards compatibility
 
-           drawPixel(uint16_t x, uint16_t y, uint16_t color),
-           fastPixel(uint16_t x, uint16_t y, uint16_t color),
-           fastSetup(void),
+  void     drawPixel(uint32_t x, uint32_t y, uint32_t color);
 
-           drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t font),
+  void     drawChar(int32_t x, int32_t y, unsigned char c, uint32_t color, uint32_t bg, uint8_t font),
            setWindow(int16_t x0, int16_t y0, int16_t x1, int16_t y1),
 
            pushColor(uint16_t color),
            pushColor(uint16_t color, uint16_t len),
 
            pushColors(uint16_t *data, uint8_t len),
-           pushColors(uint8_t  *data, uint16_t len),
+           pushColors(uint8_t  *data, uint32_t len),
 
-           fillScreen(uint16_t color),
+           fillScreen(uint32_t color),
 
            writeEnd(void),
            backupSPCR(void),
            restoreSPCR(void),
 
-           drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color),
-           drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color),
-           drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color),
+           drawLine(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, uint32_t color),
+           drawFastVLine(uint32_t x, uint32_t y, uint32_t h, uint32_t color),
+           drawFastHLine(uint32_t x, uint32_t y, uint32_t w, uint32_t color),
 
-           drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color),
-           fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color),
-           drawRoundRect(int16_t x0, int16_t y0, int16_t w, int16_t h, int16_t radius, uint16_t color),
-           fillRoundRect(int16_t x0, int16_t y0, int16_t w, int16_t h, int16_t radius, uint16_t color),
+           drawRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color),
+           fillRect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color),
+           drawRoundRect(int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint32_t color),
+           fillRoundRect(int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint32_t color),
 
            setRotation(uint8_t r),
            invertDisplay(boolean i),
 
-           drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color),
-           drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, uint16_t color),
-           fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color),
-           fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, int16_t delta, uint16_t color),
+           drawCircle(int32_t x0, int32_t y0, int32_t r, uint32_t color),
+           drawCircleHelper(int32_t x0, int32_t y0, int32_t r, uint8_t cornername, uint32_t color),
+           fillCircle(int32_t x0, int32_t y0, int32_t r, uint32_t color),
+           fillCircleHelper(int32_t x0, int32_t y0, int32_t r, uint8_t cornername, int32_t delta, uint32_t color),
 
            drawEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color),
            fillEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color),
 
-           drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color),
-           fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color),
+           drawTriangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t color),
+           fillTriangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t color),
 
            drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color),
 
@@ -311,15 +341,40 @@ class TFT_ILI9341_ESP : public Print {
            setTextColor(uint16_t color),
            setTextColor(uint16_t fgcolor, uint16_t bgcolor),
            setTextSize(uint8_t size),
-           setTextFont(uint8_t font),
+
            setTextWrap(boolean wrap),
            setTextDatum(uint8_t datum),
            setTextPadding(uint16_t x_width),
 
+#ifdef LOAD_GFXFF
+           setFreeFont(const GFXfont *f = NULL),
+           setTextFont(uint8_t font),
+#else
+           setFreeFont(uint8_t font),
+           setTextFont(uint8_t font),
+#endif
            spiwrite(uint8_t),
            writecommand(uint8_t c),
            writedata(uint8_t d),
            commandList(const uint8_t *addr);
+
+  uint8_t  readcommand8(uint8_t cmd_function, uint8_t index);
+  uint16_t readcommand16(uint8_t cmd_function, uint8_t index);
+  uint32_t readcommand32(uint8_t cmd_function, uint8_t index);
+
+           // Read the colour of a pixel at x,y and return value in 565 format 
+  uint16_t readPixel(int32_t x0, int32_t y0);
+
+           // The next functions can be used as a pair to copy screen blocks (or horizontal/vertical lines) to another location
+		   // Read a block of pixels to a data buffer, buffer is 16 bit and the array size must be at least w * h
+  void     readRect(uint32_t x0, uint32_t y0, uint32_t w, uint32_t h, uint16_t *data);
+		   // Write a block of pixels to the screen
+  void     pushRect(uint32_t x0, uint32_t y0, uint32_t w, uint32_t h, uint16_t *data);
+
+		   // This next function has been used successfully to dump the TFT screen to a PC for documentation purposes
+		   // It reads a screen area and returns the RGB 8 bit colour values of each pixel
+		   // Set w and h to 1 to read 1 pixel's colour. The data buffer must be at least w * h * 3 bytes
+  void     readRectRGB(int32_t x0, int32_t y0, int32_t w, int32_t h, uint8_t *data);
 
   uint8_t  getRotation(void);
 
@@ -327,55 +382,79 @@ class TFT_ILI9341_ESP : public Print {
            color565(uint8_t r, uint8_t g, uint8_t b);
 
   int16_t  drawChar(unsigned int uniCode, int x, int y, int font),
+		   drawChar(unsigned int uniCode, int x, int y),
            drawNumber(long long_num,int poX, int poY, int font),
+		   drawNumber(long long_num,int poX, int poY),
            drawFloat(float floatNumber,int decimal,int poX, int poY, int font),
+           drawFloat(float floatNumber,int decimal,int poX, int poY),
+		   
+		   // Handle char arrays
+           drawString(const char *string, uint poX, uint poY, int font),
+           drawString(const char *string, uint poX, uint poY),
+           drawCentreString(const char *string, int dX, int poY, int font), // Deprecated, use setTextDatum() and drawString()
+           drawRightString(const char *string, int dX, int poY, int font),  // Deprecated, use setTextDatum() and drawString()
 
-           drawString(const char *string, int poX, int poY, int font),
-           drawCentreString(const char *string, int dX, int poY, int font),
-           drawRightString(const char *string, int dX, int poY, int font),
-
-           height(void),
+		   // Handle String type
+		   drawString(const String& string, uint poX, uint poY, int font),
+		   drawString(const String& string, uint poX, uint poY),
+           drawCentreString(const String& string, int dX, int poY, int font), // Deprecated, use setTextDatum() and drawString()
+           drawRightString(const String& string, int dX, int poY, int font);  // Deprecated, use setTextDatum() and drawString()
+		   
+  int16_t  height(void),
            width(void),
            textWidth(const char *string, int font),
-           fontHeight(int font);
+		   textWidth(const char *string),
+		   textWidth(const String& string, int font),
+		   textWidth(const String& string),
+           fontHeight(int16_t font);
+
+    void   setAddrWindow(int32_t x0, int32_t y0, int32_t x1, int32_t y1);
 
  virtual   size_t write(uint8_t);
 
  private:
 
-#ifdef USE_SPI9
-  SPI9Class *_SPI; // addition JZ 27.12.2016
-#else
-  SPIClass *_SPI;
-#endif
-
-    void  setAddrWindow(int16_t x0, int16_t y0, int16_t x1, int16_t y1);
-
   uint8_t  tabcolor;
-
-       void spiWriteBytes(uint8_t * data, uint32_t size, uint32_t repeat=1);
+  
+            SPIClass *_SPI;
 inline void spi_begin() __attribute__((always_inline));
 inline void spi_end() __attribute__((always_inline));
 
-  volatile uint32_t *dcport, *rsport;
-  int32_t   _dc;
+void  writeBytes_(uint8_t * data, uint8_t size);
+inline void setDataBits(uint16_t bits);
+
+  boolean  hwSPI;
+
+  volatile uint32_t *mosiport, *clkport, *dcport, *rsport, *csport;
+  int32_t  _cs, _dc, _rst, _mosi, _miso, _sclk;
   uint32_t  mosipinmask, clkpinmask, cspinmask, dcpinmask;
 
   uint8_t  mySPCR, savedSPCR;
 
+  //uint8_t  fifoBuffer[64];
+  uint8_t  colorBin[2];
+  uint32_t lastColor = 0xFFFF;
+
  protected:
 
-  int16_t  cursor_x, cursor_y, win_xe, win_ye, padX;
+  uint32_t  cursor_x, cursor_y, win_xe, win_ye, padX;
 
-  uint16_t _width, _height, // Display w/h as modified by current rotation
+  uint32_t _width, _height, // Display w/h as modified by current rotation
            textcolor, textbgcolor, fontsloaded, addr_row, addr_col;
 
-  uint8_t  textfont,
-           textsize,
-           textdatum,
-           rotation;
+  uint8_t  glyph_ab,  // glyph height above baseline
+           glyph_bb,  // glyph height below baseline
+           textfont,  // Current selected font
+           textsize,  // Current font size multiplier
+           textdatum, // Text reference datum
+           rotation;  // Display rotation (0-3)
 
   boolean  textwrap; // If set, 'wrap' text at right edge of display
+
+#ifdef LOAD_GFXFF
+  GFXfont
+    *gfxFont;
+#endif
 
 };
 
