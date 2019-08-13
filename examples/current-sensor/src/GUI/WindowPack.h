@@ -3,7 +3,6 @@
 //#include "emGUI/emGUI.hpp"
 //#include "emGUI/emGUI.h"
 #include <emGUI.h>
-#include "../../emGUIGlue.h"
 
 typedef enum {
 	WINDOW_MENU,

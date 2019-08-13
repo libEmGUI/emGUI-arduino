@@ -10,7 +10,6 @@
 #include <FS.h>
 
 #include "src/GUI/GUI.h"
-#include "emGUIGlue.h"
 #include "src/GUI/WindowPack.h"
 #include "src/TouchWrapper/TouchWrapper.h"
 #include <Adafruit_INA219.h>
