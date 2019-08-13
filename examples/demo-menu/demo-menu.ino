@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <emGUI.h>
 #include "emGUIGlue.h"
-#include "Gui.h"
+#include "src/GUI/GUI.h"
 #include "src/TouchWrapper/TouchWrapper.h"
 
 #include "User_Setup.h"
