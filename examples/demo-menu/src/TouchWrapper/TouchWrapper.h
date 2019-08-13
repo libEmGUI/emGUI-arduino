@@ -2,7 +2,7 @@
 
 #include <XPT2046_Touchscreen.h>
 
-#include "../../emGUIGlue.h"
+#include "emGUI.h"
 #include "../../User_Setup.h"
 
 class TouchWrapper : XPT2046_Touchscreen {
