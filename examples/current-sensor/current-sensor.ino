@@ -4,7 +4,7 @@
 *  TFT configs are in User_Setup.h
 *  fbits.tech 2018 // Roman Savrulin, Mikhail Natalenko
 */
-
+#include <Arduino.h>
 #include <Wire.h>
 #include <Hash.h>
 #include <FS.h>
