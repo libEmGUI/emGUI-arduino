@@ -134,8 +134,6 @@ bool vGUICheckUTF(uint8_t data, tUTFstateMachine * t_status) {      //returns tr
   static const uint8_t secondMarker  = 0b10000000;
   static const uint8_t secondMask    = 0b11000000;
   
-  tUTFstateMachine * status = t_status;
-
   switch (t_status->state) {
   case UTF_WAIT_FIRST:
     if ((data & firstMask) == firstMarker) {
@@ -161,6 +159,7 @@ bool vGUICheckUTF(uint8_t data, tUTFstateMachine * t_status) {      //returns tr
     t_status->buffer = 0;
     return false;
   }
+  return false;
 }
 
 static uint16_t usFontGetH(xFont pubFont) {

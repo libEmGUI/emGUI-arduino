@@ -311,12 +311,12 @@ class TFT_ILI9341_ESP : public Print {
            backupSPCR(void),
            restoreSPCR(void),
 
-           drawLine(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color),
-           drawFastVLine(int32_t x, int32_t y, int32_t h, uint32_t color),
-           drawFastHLine(int32_t x, int32_t y, int32_t w, uint32_t color),
+           drawLine(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, uint32_t color),
+           drawFastVLine(uint32_t x, uint32_t y, uint32_t h, uint32_t color),
+           drawFastHLine(uint32_t x, uint32_t y, uint32_t w, uint32_t color),
 
            drawRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color),
-           fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color),
+           fillRect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color),
            drawRoundRect(int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint32_t color),
            fillRoundRect(int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint32_t color),
 
@@ -389,14 +389,14 @@ class TFT_ILI9341_ESP : public Print {
            drawFloat(float floatNumber,int decimal,int poX, int poY),
 		   
 		   // Handle char arrays
-           drawString(const char *string, int poX, int poY, int font),
-           drawString(const char *string, int poX, int poY),
+           drawString(const char *string, uint poX, uint poY, int font),
+           drawString(const char *string, uint poX, uint poY),
            drawCentreString(const char *string, int dX, int poY, int font), // Deprecated, use setTextDatum() and drawString()
            drawRightString(const char *string, int dX, int poY, int font),  // Deprecated, use setTextDatum() and drawString()
 
 		   // Handle String type
-		   drawString(const String& string, int poX, int poY, int font),
-		   drawString(const String& string, int poX, int poY),
+		   drawString(const String& string, uint poX, uint poY, int font),
+		   drawString(const String& string, uint poX, uint poY),
            drawCentreString(const String& string, int dX, int poY, int font), // Deprecated, use setTextDatum() and drawString()
            drawRightString(const String& string, int dX, int poY, int font);  // Deprecated, use setTextDatum() and drawString()
 		   
@@ -420,14 +420,8 @@ class TFT_ILI9341_ESP : public Print {
 inline void spi_begin() __attribute__((always_inline));
 inline void spi_end() __attribute__((always_inline));
 
-
-
-
 void  writeBytes_(uint8_t * data, uint8_t size);
 inline void setDataBits(uint16_t bits);
-
-
-
 
   boolean  hwSPI;
 
@@ -443,7 +437,7 @@ inline void setDataBits(uint16_t bits);
 
  protected:
 
-  int32_t  cursor_x, cursor_y, win_xe, win_ye, padX;
+  uint32_t  cursor_x, cursor_y, win_xe, win_ye, padX;
 
   uint32_t _width, _height, // Display w/h as modified by current rotation
            textcolor, textbgcolor, fontsloaded, addr_row, addr_col;

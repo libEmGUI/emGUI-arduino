@@ -35,7 +35,7 @@ public:
 	xLabel * currentMonitor;
 	xLabel * currentMonitorHeader;
 	short data;
-	short passDelay = 60;
+	unsigned short passDelay = 60;
 	bool onClose(){
 		free(plotLead.psData);
 		return false;
@@ -51,7 +51,7 @@ public:
 		static auto lastMillis = millis();
 
 		if (millis() - lastMillis > passDelay) {
-			sprintf (textBuffer, "%d\0", data / 10);
+			snprintf (textBuffer, sizeof(textBuffer), "%d", data / 10);
 			pcLabelSetText(currentMonitor, textBuffer);
 			lastMillis = millis();
 		} 

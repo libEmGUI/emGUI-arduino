@@ -57,7 +57,7 @@ void setup() {
 // To reduce noise in signal we use filter 
 void handleData(float data) {
   auto window = WindowPlot::getInstance(false);
-	auto fData = lpf.do_sample(data);
+	lpf.do_sample(data);
 	if (window) window->update(data);
 }
 
