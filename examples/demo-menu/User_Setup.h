@@ -25,14 +25,39 @@
 // LinkSpriteTouchScreen
 //#define TFT_DC   D4  // Data Command control pin
 
-// Topfoison
-#define TFT_DC   2  // Data Command control pin
 
-#define SDA_PIN   5
-#define SCK_PIN   10
-#define INTR_SYS  4
-#define INTR_TOUCH 9
-#define INTR_NFC  12
+
+/*
+
+http://www.forward.com.au/pfod/ESP8266/GPIOpins/index.html
+
+
+static const uint8_t D0   = 16;  - встроенный PULL-DOWN  
+static const uint8_t D1   = 5;   - *cs TOUCH*
+static const uint8_t D2   = 4;   -  *cs TFT*
+static const uint8_t D3   = 0;   - [BOOT]*SDA_PIN*
+static const uint8_t D4   = 2;   - [BOOT] На старте должен быть HIGH *SCK_PIN*
+static const uint8_t D5   = 14;  - [SPI] SCK
+static const uint8_t D6   = 12;  - [SPI] MOSI
+static const uint8_t D7   = 13;  - [SPI] MOSI
+static const uint8_t D8   = 15;  - [BOOT] на старте должен быть LOW *DC*
+static const uint8_t D9   = 3;   - [UART] rx
+static const uint8_t D10  = 1;   - [UART] tx
+
+*/
+// Topfoison
+#define TFT_DC   15  // Data Command control pin
+#define TFT_CS   4 
+#define TOUCH_CS 5
+#define TFT_RST -1
+
+//#define INTR_TOUCH 10
+
+
+#define SDA_PIN   0
+#define SCK_PIN   2
+#define INTR_SYS  -1
+#define INTR_NFC  -1
 
 #define UART_RX   3
 

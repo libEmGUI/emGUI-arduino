@@ -55,7 +55,7 @@ public:
   }
 
 protected:
-  int colorNum = 0;
+  unsigned int colorNum = 0;
 };
 
 
@@ -71,7 +71,7 @@ public:
     auto y = spacing / 2;
     auto x = 5;
     auto w = 130;
-    auto len = 20;
+    //auto len = 20;
 
     l1 = pxLabelCreate(x, y, w, 110, F_WRP(""), NULL, 100, xThis);
 
@@ -95,8 +95,9 @@ public:
 
     y += draw->H() + spacing;
     tp = std::make_unique<ButtonToggle>(x, y, w, h, "TP ON", this);
-    tp->onToggle = [](ButtonToggle* b, bool state) {
+    tp->onToggle = [](ButtonToggle* b, bool state) -> bool {
       //do something
+      return true;
     };
 
     y += tp->H() + spacing;
@@ -106,20 +107,23 @@ public:
     spacing = 2;
 
     act = std::make_unique<ButtonToggle>(x, y, w, h, "ACTIVE", this);
-    act->onToggle = [](ButtonToggle* b, bool state) {
+    act->onToggle = [](ButtonToggle* b, bool state) -> bool {
       //do something
+      return true;
     };
 
     x += act->W() + spacing;
     vib = std::make_unique<ButtonToggle>(x, y, w, h, "VBR", this);
-    vib->onToggle = [](ButtonToggle* b, bool state) {
+    vib->onToggle = [](ButtonToggle* b, bool state) -> bool {
       //do something
+      return true;
     };
 
     x += vib->W() + spacing;
     bl = std::make_unique<ButtonToggle>(x, y, w, h, "BL", this);
-    bl->onToggle = [](ButtonToggle* b, bool state) {
+    bl->onToggle = [](ButtonToggle* b, bool state) -> bool {
       //do something
+      return true;
     };
 
     x += bl->W() + spacing;
@@ -181,7 +185,7 @@ public:
     uint8_t row2 = row1 + 80 + offset;
     uint8_t column1 = offset;
     uint8_t column2 = EMGUI_LCD_WIDTH / 2 - 30;
-    uint8_t column3 = EMGUI_LCD_WIDTH - offset - 60;
+    //uint8_t column3 = EMGUI_LCD_WIDTH - offset - 60;
     auto btn = pxButtonCreateFromImageWithText(column1, row1, "/about.bmp", "HW Test", xThis);
     vButtonSetOnClickHandler(btn,
       [](xWidget *) {
@@ -227,7 +231,7 @@ public:
 // Action on interface creatings
 bool bGUIonWindowManagerCreateHandler(xWidget *) {
   vWindowManagerSetKeypressHandler([](int iID, uint16_t uEv){
-    if(uEv = 1)
+    if(uEv == 1)
       vWindowManagerCloseActiveWindow();
 
     return true;
