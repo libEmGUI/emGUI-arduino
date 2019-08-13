@@ -33,7 +33,9 @@
 
 #define EMGUI_XPICTURE_TYPE  const char*
 
+void vGUIGlueInit();
 
-
+EMGUI_XFONT_TYPE xGetDefaultFont();
+void vGUIGlueSetCtx(void *);
 
 #endif // !ARDIUNO_OPTS_H

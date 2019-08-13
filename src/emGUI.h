@@ -1,5 +1,4 @@
-#ifndef EMGUI_ARDUINO_H
-#define EMGUI_ARDUINO_H
+#pragma once
 
 #if defined(__cplusplus) && !defined(_MSC_VER)
 //#include <Adafruit_GFX.h> //to add GFX to arduino's include path
@@ -12,6 +11,4 @@
 
 #if __cplusplus >= 201103L
 #include "emGUI/emGUI.hpp"
-#endif
-
 #endif

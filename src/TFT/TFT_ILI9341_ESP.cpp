@@ -53,25 +53,27 @@ TFT_ILI9341_ESP::TFT_ILI9341_ESP(int16_t w, int16_t h)
 {
 
   _SPI = &SPI; // Initialise class pointer
-  
-  _cs   = TFT_CS;
-  _dc   = TFT_DC;
-  _rst  = TFT_RST;
+
+#warning Setup this!!!
+#define SPI_FREQUENCY 40000000
+  _cs   = 0;
+  _dc   = 0;
+  _rst  = 0;
 
   hwSPI = true;
   _mosi  = _sclk = 0;
 
 
-  if (TFT_RST >= 0) {
-    digitalWrite(TFT_RST, LOW);
-    pinMode(TFT_RST, OUTPUT);
+  if (_rst >= 0) {
+    digitalWrite(_rst, LOW);
+    pinMode(_rst, OUTPUT);
   }
 
-  digitalWrite(TFT_DC, HIGH);
-  pinMode(TFT_DC, OUTPUT);
+  digitalWrite(_dc, HIGH);
+  pinMode(_dc, OUTPUT);
 
-  digitalWrite(TFT_CS, HIGH);
-  pinMode(TFT_CS, OUTPUT);
+  digitalWrite(_cs, HIGH);
+  pinMode(_cs, OUTPUT);
 
   _width    = w;
   _height   = h;
@@ -351,12 +353,12 @@ void TFT_ILI9341_ESP::init(void)
   // SPI1U1 |= SPIUSIO; // Single I/O pin on MOSI (bi-directional) - not tested
  
   // toggle RST low to reset
-  if (TFT_RST >= 0) {
-    digitalWrite(TFT_RST, HIGH);
+  if (_rst >= 0) {
+    digitalWrite(_rst, HIGH);
     delay(5);
-    digitalWrite(TFT_RST, LOW);
+    digitalWrite(_rst, LOW);
     delay(20);
-    digitalWrite(TFT_RST, HIGH);
+    digitalWrite(_rst, HIGH);
     delay(150);
   }
 

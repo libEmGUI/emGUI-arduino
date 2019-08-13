@@ -1,12 +1,11 @@
-#include "emGUIGlue.h"
-
 #include "SPI.h"
-#include "src/TFT/TFT_ILI9341_ESP.h"
+#include "TFT/TFT_ILI9341_ESP.h"
 #include "FS.h"
+#include "emGUI.h"
 
-#include "src/TFT/Fonts/GFXFF/FreeSans9pt7b.h"
-#include "src/TFT/Fonts/GFXFF/FreeSansBold9pt7b.h"
-#include "src/UTF8-fonts/MyriadPro_Regular9pt8b.h"
+#include "TFT/Fonts/GFXFF/FreeSans9pt7b.h"
+#include "TFT/Fonts/GFXFF/FreeSansBold9pt7b.h"
+#include "TFT/UTF8-fonts/MyriadPro_Regular9pt8b.h"
 
 #include <cstddef>
 #include <emGUI_port_opts.h>
@@ -254,6 +253,8 @@ static void vRectangle(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usY
 }
 
 static void vPutChar( uint16_t usX, uint16_t usY, char cChar, xFont pubFont, uint16_t usColor, uint16_t usBackground, bool bFillBg) {
+  if(!tft)
+    return;
   static tUTFstateMachine machine = { UTF_WAIT_FIRST,0 };
   uint16_t utfChar;
   if (!vGUICheckUTF(cChar, &machine)) {
@@ -408,20 +409,6 @@ static const GFXfont * xDefaultFont[] = { &FreeSans9pt7b, &MyriadPro_Regular9pt8
 
 xFont xGetDefaultFont() {
   return xDefaultFont;
-}
-
-void TFTSleep(){
-  if (!tft)
-      return;
-
-  tft->writecommand(ILI9341_SLPIN);
-}
-
-void TFTWake(){
-  if (!tft)
-      return;
-
-  tft->writecommand(ILI9341_SLPOUT);
 }
 
 void vGUIGlueInit(){

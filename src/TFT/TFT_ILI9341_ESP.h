@@ -15,9 +15,6 @@
 
  ****************************************************/
 
-// Include header file that defines the fonts loaded and the pins to be used
-#include "../../User_Setup.h"
-
 // Stop fonts being loaded multiple times
 #ifndef _TFT_ILI9341_ESPH_
 #define _TFT_ILI9341_ESPH_
