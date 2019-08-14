@@ -1,7 +1,8 @@
 #pragma once
 
 #if defined(__cplusplus) && !defined(_MSC_VER)
-//#include <Adafruit_GFX.h> //to add GFX to arduino's include path
+#include <Adafruit_GFX.h> //to add GFX to arduino's include path
+#include <Adafruit_SPITFT.h>
 #endif
 
 #if !defined(_MSC_VER)

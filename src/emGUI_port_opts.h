@@ -17,13 +17,13 @@
 // i.e. const GFXfont * bigFont[] = { &FreeSans24pt7b , &MyriadPro_Regular24pt8b, NULL };
 
 #ifndef EMGUI_USE_UTF8_FONTS
-#define EMGUI_USE_UTF8_FONTS    1
+#define EMGUI_USE_UTF8_FONTS    0
 #endif 
 
 //#define EMGUI_DEBUG					1
 
 
-#include "gfxfont.h" // if using UTF8 fonts, Adafruit-GFX should be updated to use uint16 char ranges
+#include <gfxfont.h> // if using UTF8 fonts, Adafruit-GFX should be updated to use uint16 char ranges
 
 #if EMGUI_USE_UTF8_FONTS
 #define EMGUI_XFONT_TYPE const GFXfont **
@@ -33,7 +33,9 @@
 
 #define EMGUI_XPICTURE_TYPE  const char*
 
-void vGUIGlueInit();
+#ifdef __cplusplus
+void vGUIGlueInit(Adafruit_SPITFT *tft);
+#endif
 
 EMGUI_XFONT_TYPE xGetDefaultFont();
 void vGUIGlueSetCtx(void *);

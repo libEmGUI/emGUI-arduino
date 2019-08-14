@@ -1,12 +1,7 @@
 #include "SPI.h"
-#include "TFT/TFT_ILI9341_ESP.h"
 #include "FS.h"
 #include "emGUI.h"
-
-#include "TFT/Fonts/GFXFF/FreeSans9pt7b.h"
-#include "TFT/Fonts/GFXFF/FreeSansBold9pt7b.h"
-#include "TFT/UTF8-fonts/MyriadPro_Regular9pt8b.h"
-
+#include <Adafruit_SPITFT.h>
 #include <cstddef>
 #include <emGUI_port_opts.h>
 
@@ -43,8 +38,8 @@ check_size<BITMAPINFOHEADER, 40> CHECK_BITMAPINFOHEADER;
 
 #define pgm_read_pointer(addr) ((void *)pgm_read_dword(addr))
 
-static TFT_ILI9341_ESP *tft = NULL;
-static xDraw_t LCD;
+static Adafruit_SPITFT *tft = NULL;
+static xDraw_t DrawHandler;
 
 class BMPFile{
 public:
@@ -115,6 +110,7 @@ protected:
 
 static BMPFile *bmFile = NULL;
 
+#if EMGUI_USE_UTF8_FONTS
 typedef enum {
   UTF_WAIT_FIRST = 0,
   UTF_WAIT_SECOND = 1
@@ -159,10 +155,15 @@ bool vGUICheckUTF(uint8_t data, tUTFstateMachine * t_status) {      //returns tr
   }
   return false;
 }
+#endif
 
 static uint16_t usFontGetH(xFont pubFont) {
-  const GFXfont *gfxFont = *pubFont;
-  uint8_t  height = pgm_read_byte (&gfxFont->yAdvance);
+  //const GFXfont *gfxFont = *pubFont;
+  #warning "remove this!"
+  if(!pubFont)
+  
+    return 10;
+  uint8_t  height = pgm_read_byte (&pubFont->yAdvance);
   return (uint16_t) height;
 }
 
@@ -207,14 +208,16 @@ static const GFXfont * prvGetFontSegment(uint16_t ch, xFont f) {
 }
 
 static uint16_t ucFontGetCharW(char cChar, xFont pubFont) {
-  static tUTFstateMachine machine = { UTF_WAIT_FIRST,0 };
-  uint16_t utfChar;
+  uint16_t utfChar = cChar;
+#if EMGUI_USE_UTF8_FONTS
+static tUTFstateMachine machine = { UTF_WAIT_FIRST,0 };
   if (!vGUICheckUTF(cChar, &machine)) {
     return 0;
   }
   else {
     utfChar = machine.buffer;
   }
+#endif
   const GFXfont *gfxFont = prvGetFontSegment(utfChar, pubFont);
   if (!gfxFont)
     return 0;
@@ -255,14 +258,16 @@ static void vRectangle(uint16_t usX0, uint16_t usY0, uint16_t usX1, uint16_t usY
 static void vPutChar( uint16_t usX, uint16_t usY, char cChar, xFont pubFont, uint16_t usColor, uint16_t usBackground, bool bFillBg) {
   if(!tft)
     return;
+  uint16_t utfChar = cChar;
+#if EMGUI_USE_UTF8_FONTS
   static tUTFstateMachine machine = { UTF_WAIT_FIRST,0 };
-  uint16_t utfChar;
   if (!vGUICheckUTF(cChar, &machine)) {
     return ;
   }
   else {
     utfChar = machine.buffer;
   }
+#endif
   const GFXfont *gfxFont = prvGetFontSegment(utfChar, pubFont);
   if (!gfxFont)
     return ;
@@ -331,14 +336,31 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
     dataSize  = dataSize + padding; // in case of odd width we should pad to 4 bytes
     dataSize *= H;
 
-    tft->setRotation(5);
+    //we need to flip BMP image on screen
+    auto rotation = tft->getRotation();
+    switch(rotation){
+      case 0: tft->setRotation(3); break;
+      case 1: tft->setRotation(0); break;
+      case 2: tft->setRotation(1); break;
+      case 3: tft->setRotation(2); break;
+      default: break;
+    }
+
+    tft->startWrite();
+
     //we need to translate coords with respect to MAXIMUM available resolution for our controller
     //tft->setWindow(sX0, ILI9341_TFTWIDTH - sY1, sX1, ILI9341_TFTHEIGHT - sY0);
-    tft->setWindow(sX0, 240 - sY1, sX1, 240 - sY0);
+     //tft->setWindow(sX0, 240 - sY1, sX1, 240 - sY0);
+    //tft->setAddrWindow(tft->height() - sX1, tft->width() - sY1, W, H);
+    switch(rotation){
+      case 0: tft->setAddrWindow(tft->width() - W - sY0, sX0, W, H); break;
+      case 1: tft->setAddrWindow(tft->width() - W - sY0, sX0, W, H); break;
+      case 2: tft->setAddrWindow(tft->width() - H - sY0, sX0, W, H); break;
+      case 3: tft->setAddrWindow(tft->width() - H - sY0, sX0, W, H); break;
+      default: tft->setAddrWindow(sX0, sY0, W, H);
+    }
     //for swapping X and Y
     //tft->setWindow(EMGUI_LCD_WIDTH - sX1, ILI9341_TFTHEIGHT -  sY1, EMGUI_LCD_WIDTH - sX0, ILI9341_TFTHEIGHT - sY0);
-
-    tft->writecommand(ILI9341_RAMWR);
 
     bmFile->seekData();
     char data[32]; //TODO: move from stack! 
@@ -360,8 +382,8 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
             continue;
           }
 
-          tft->writedata(*(p+1));
-          tft->writedata(*p);
+          tft->spiWrite(*(p+1));
+          tft->spiWrite(*p);
           p+= 2;
         }
         p = data;
@@ -371,17 +393,17 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
         dataSize -= btw;
         char * pEnd = data + (btw / 2) * 2; // read only even numbers of bytes
         while (p < pEnd){
-          tft->writedata(*(p+1));
-          tft->writedata(*p);
+          tft->spiWrite(*(p+1));
+          tft->spiWrite(*p);
           p+= 2;
         }
         p = data;
       }
     }
+    tft->endWrite();
 
-    //tft->writecommand (ILI9341_MADCTL);
-    //tft->writedata(0x00);
-    tft->setRotation(1);
+    //restore rotation
+    tft->setRotation(rotation);
   }
 }
 
@@ -405,41 +427,42 @@ static uint16_t usGetPictureH(xPicture pusPicture) {
   return 0;
 }
 
-static const GFXfont * xDefaultFont[] = { &FreeSans9pt7b, &MyriadPro_Regular9pt8b, NULL };
+//static const GFXfont * xDefaultFont[] = { &FreeSans9pt7b, &MyriadPro_Regular9pt8b, NULL };
 
 xFont xGetDefaultFont() {
-  return xDefaultFont;
+  return NULL;//xDefaultFont;
 }
 
-void vGUIGlueInit(){
-  SPIFFS.begin();
+void vGUIGlueInit(Adafruit_SPITFT *actualTFT){
+  if(!actualTFT)
+    return;
+
   // Config EM_GUI opts 
-  EMGUI_LCD_WIDTH = 320;
+  EMGUI_LCD_WIDTH = actualTFT->width();
+  EMGUI_LCD_HEIGHT = actualTFT->height();
   EMGUI_STATUS_BAR_HEIGHT = 26;
-  if (!tft){
+  if (!bmFile){
+    SPIFFS.begin();
     bmFile = new BMPFile();
-    tft =  new TFT_ILI9341_ESP();  // Use hardware SPI
 
-    vDrawHandlerInit(&LCD);
-    LCD.vRectangle = &vRectangle;
-    LCD.vPutChar = &vPutChar;
-    LCD.bPicture = &bPicture;
-    LCD.vVLine = &vVLine;
-    LCD.vHLine = &vHLine;
-    LCD.usGetPictureH = &usGetPictureH;
-    LCD.usGetPictureW = &usGetPictureW;
+    tft = actualTFT;
 
-    LCD.usFontGetH  = &usFontGetH;
-    LCD.ucFontGetCharW = &ucFontGetCharW;
-    LCD.usFontGetStrW  = &usFontGetStrW;
-    LCD.usFontGetStrH  = &usFontGetStrH;
-    LCD.xGetDialogPictureSet = prvGetPicSet;
-    LCD.xGetDefaultFont = xGetDefaultFont;
+    vDrawHandlerInit(&DrawHandler);
+    DrawHandler.vRectangle = &vRectangle;
+    DrawHandler.vPutChar = &vPutChar;
+    DrawHandler.bPicture = &bPicture;
+    DrawHandler.vVLine = &vVLine;
+    DrawHandler.vHLine = &vHLine;
+    DrawHandler.usGetPictureH = &usGetPictureH;
+    DrawHandler.usGetPictureW = &usGetPictureW;
 
-    vDrawSetHandler(&LCD);
+    DrawHandler.usFontGetH  = &usFontGetH;
+    DrawHandler.ucFontGetCharW = &ucFontGetCharW;
+    DrawHandler.usFontGetStrW  = &usFontGetStrW;
+    DrawHandler.usFontGetStrH  = &usFontGetStrH;
+    DrawHandler.xGetDialogPictureSet = prvGetPicSet;
+    DrawHandler.xGetDefaultFont = xGetDefaultFont;
 
-    tft->init();
-    tft->fillScreen(TFT_LIGHTGREY);
-    tft->setRotation(1);
+    vDrawSetHandler(&DrawHandler);
   }
 }
