@@ -8,6 +8,9 @@
 #include <Wire.h>
 #include <Hash.h>
 #include <FS.h>
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ILI9341.h>
 
 #include "src/GUI/GUI.h"
 #include "src/GUI/WindowPack.h"
@@ -16,6 +19,25 @@
 #include "src/FIR-filter-class/filt.h"
 
 #include "User_Setup.h"
+
+#include "User_Setup.h"
+
+Adafruit_ILI9341 tft(TFT_CS, TFT_DC);
+
+unsigned long testFillScreen() {
+  unsigned long start = micros();
+  tft.fillScreen(ILI9341_BLACK);
+  yield();
+  tft.fillScreen(ILI9341_RED);
+  yield();
+  tft.fillScreen(ILI9341_GREEN);
+  yield();
+  tft.fillScreen(ILI9341_BLUE);
+  yield();
+  tft.fillScreen(ILI9341_BLACK);
+  yield();
+  return micros() - start;
+}
 
 // Signal filter
 Filter lpf(LPF, 51, AFE_DATA_RATE / 1000.f, 0.05);
@@ -31,14 +53,18 @@ void setup() {
   Wire.begin(SDA_PIN, SCL_PIN);
   touch.init();
 
+  tft.begin();
+  tft.setRotation(1);
   // Setup emGUI
-  vGUIGlueInit();
+  vGUIGlueInit(&tft);
+
   // Start GUI
   GUIInit();
 
   // setup and start INA219 current monitor
   monitor.begin();
   monitor.setCalibration_32V_1A();
+  testFillScreen();
 }
 
 // To reduce noise in signal we use filter 
