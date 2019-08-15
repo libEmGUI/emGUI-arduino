@@ -7,8 +7,8 @@ public:
   void create() {
     vWindowSetHeader(xThis, "Main menu");
     uint8_t offset = 20;
-    uint8_t btnWidth = 120;
-    uint8_t btnHeight = 120;
+    uint8_t btnWidth = EMGUI_LCD_WIDTH / 3;
+    uint8_t btnHeight = EMGUI_LCD_HEIGHT / 3;
     uint8_t row1 = offset;
     uint8_t column1 = offset;
     uint8_t column2 = EMGUI_LCD_WIDTH - offset - btnWidth;
@@ -28,6 +28,6 @@ public:
   }
 
   bool onCloseRequest() {
-    return false; //allow window close
+    return false; //suppress window close request
   }
 };

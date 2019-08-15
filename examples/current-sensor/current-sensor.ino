@@ -48,97 +48,107 @@ public:
     TouchWrapper(tft),
     XPT2046_Touchscreen(TOUCH_CS){}
 
+  void begin(){
+    XPT2046_Touchscreen::begin();
+
+    // matrixes are applied from the end (See Matrix Dot Product order)
+    dumpMatrix();
+
+    // Transformation #3
+    {
+      //scale to actual width/height
+      float xScale = _tft.width() / scaleRes;
+      float yScale = _tft.height() / scaleRes;
+
+      float scaleMatrix[9] = {
+        xScale, 0.0f, 0.f,
+        0.0f, yScale, 0.f,
+        0.0f, 0.0f, 1.0f
+      };
+
+      dotTransformation(scaleMatrix);
+      dumpMatrix();
+    }
+
+    // Transformation #2
+    {
+      //rotate touch coords according to screen orientation
+      float pi = acosf(-1);
+      float angle = 0.f;
+      float xOffs = 0.f;
+      float yOffs = 0.f;
+      switch (_tft.getRotation())
+      {
+        case 0: angle = 3.f*pi/2.f; xOffs = scaleRes; break; // angle = 270
+        case 1: angle = 0.f; break;  // angle = 0
+        case 2: angle = pi/2; yOffs = scaleRes; break; // angle = 90
+        case 3: angle = pi; xOffs = yOffs = scaleRes; break; // angle = 180
+        default: break;
+      }
+
+      float sin = sinf(angle);
+      float cos = cosf(angle);
+
+      float rotateMatrix[9] = {
+        cos, sin, xOffs,
+        -sin, cos, yOffs,
+        0.f, 0.f, 1.f
+      };
+
+      dotTransformation(rotateMatrix);
+      dumpMatrix();
+    }
+
+    // Transformation #1
+    {
+      //scale to square 1000x1000, eliminating offsets (calibration) and swapping x and y points
+
+      /*
+        Matrix coefficient computations
+        
+        xScale = touch_area_width / total_width
+        yScale = touch_area_height / total_height
+        xOffset = touch_area_x_offset / total_width
+        yOffset = touch_area_y_offset / total_height
+      */
+
+      auto maxAdcValueX = 3641.f;
+      auto maxAdcValueY = 3450.f;
+      float xOffset = -80;
+      float yOffset = -80;
+      //scale and flip
+      float w = -scaleRes; // flip x/y
+      float h = scaleRes;
+      float xScale = w / maxAdcValueX;
+      float yScale = h / maxAdcValueY;
+
+      // offset compensation after flip
+      if(w < 0)
+        xOffset = -xOffset - w;
+      if(h < 0)
+        yOffset = -yOffset - h;
+
+      float scaleMatrix[9] = {
+        xScale, 0.0f, xOffset,
+        0.0f, yScale, yOffset,
+        0.0f, 0.0f, 1.0f
+      };
+      dotTransformation(scaleMatrix);
+      dumpMatrix();
+    }
+    
+  }
+
   bool isTouched(){
     return XPT2046_Touchscreen::touched();
   };
 
 	TouchPoint getTouchCoords(){
     auto p = XPT2046_Touchscreen::getPoint();
-    TouchWrapper::TouchPoint tp(p.x, p.y);    
-    
-    //TODO: compute and store composite transform matrix at startup and apply it inside TouchWrapper
-
-    /*
-      Matrix coefficient computations
-      
-      xScale = touch_area_width / total_width
-      yScale = touch_area_height / total_height
-      xOffset = touch_area_x_offset / total_width
-      yOffset = touch_area_y_offset / total_height
-    */
-
-    //scale to square 1000x1000, eliminating offsets
-    auto scaleRes = 1000.f;
-    
-    auto maxAdcValueX = 3641.f;
-    auto maxAdcValueY = 3450.f;
-    float xOffset = -80;
-    float yOffset = -80;
-    //scale and flip
-    float w = -scaleRes; // flip x/y
-    float h = scaleRes;
-    float xScale = w / maxAdcValueX;
-    float yScale = h / maxAdcValueY;
-
-    // offset compensation after flip
-    if(w < 0)
-      xOffset = -xOffset - w;
-    if(h < 0)
-      yOffset = -yOffset - h;
-
-    float scaleMatrix[9] = {
-      xScale, 0.0f, xOffset,
-      0.0f, yScale, yOffset,
-      0.0f, 0.0f, 1.0f
-    };
-
-    auto scale = tp.transform(scaleMatrix, 9);
-
-    //rotate according to screen orientation
-    float pi = acosf(-1);
-    float angle = 0.f;
-    float xOffs = 0.f;
-    float yOffs = 0.f;
-    switch (_tft.getRotation())
-    {
-      case 0: angle = 3.f*pi/2.f; xOffs = scaleRes; break; // angle = 270
-      case 1: angle = 0.f; break;  // angle = 0
-      case 2: angle = pi/2; yOffs = scaleRes; break; // angle = 90
-      case 3: angle = pi; xOffs = yOffs = scaleRes; break; // angle = 180
-      default: break;
-    }
-
-    float sin = sinf(angle);
-    float cos = cosf(angle);
-
-    float rotateMatrix[9] = {
-      cos, sin, xOffs,
-      -sin, cos, yOffs,
-      0.f, 0.f, 1.f
-    };
-
-    auto rotate = scale.transform(rotateMatrix, 9);
-
-    //scale to actual width/height
-    xScale = _tft.width() / scaleRes;
-    yScale = _tft.height() / scaleRes;
-
-    float scaleMatrix2[9] = {
-      xScale, 0.0f, 0.f,
-      0.0f, yScale, 0.f,
-      0.0f, 0.0f, 1.0f
-    };
-
-    auto scale2 = rotate.transform(scaleMatrix2, 9);
-
-    Serial.printf("W: %d; H: %d\n", _tft.width(), _tft.height());
-    Serial.printf("x: %d; y: %d Raw\n", p.x, p.y);
-    Serial.printf("x: %d; y: %d Scaled\n", scale.x, scale.y);
-    Serial.printf("x: %d; y: %d Rot\n", rotate.x, rotate.y);
-    Serial.printf("x: %d; y: %d Scale2\n", scale2.x, scale2.y);
-    
-    return scale2;
+    return TouchPoint(p.x, p.y);
   };
+
+  float scaleRes = 1000.f;
 };
 
 Touch touch(tft);
@@ -149,10 +159,12 @@ void setup() {
   Serial.println(F("Ready"));
 
   Wire.begin(SDA_PIN, SCL_PIN);
-  touch.begin();
 
   tft.begin();
+  // set rotation first!
   tft.setRotation(1);
+  // init touch with transformations after screen rotation is set!
+  touch.begin();
   // Setup emGUI
   vGUIGlueInit(&tft);
 
