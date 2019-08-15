@@ -13,3 +13,7 @@
 #if __cplusplus >= 201103L
 #include "emGUI/emGUI.hpp"
 #endif
+
+#if defined(__cplusplus)
+#include "TouchWrapper.h"
+#endif

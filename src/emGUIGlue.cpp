@@ -328,8 +328,8 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
     uint32_t W = bmFile->width();
     uint32_t H = bmFile->height();
 
-    uint32_t sX1 = sX0 + W - 1;
-    uint32_t sY1 = sY0 + H - 1;
+    //uint32_t sX1 = sX0 + W - 1;
+    //uint32_t sY1 = sY0 + H - 1;
 
     uint32_t dataSize = W * 2;
     auto padding = (4 - dataSize % 4) % 4;
