@@ -39,29 +39,14 @@ bool TouchWrapper::loop()
 		
 		auto p = getTouchCoords();
 
-		int x = 0; 
-		int y = 0;
+		if (p.x < 0) p.x = 0;
+		if (p.x > _tft.width()) p.x = _tft.width();
 
-		switch (_tft.getRotation())
-		{
-		case 0:
-			x = _tft.width() - y;
-			y = (x * _tft.height())/_tft.width();
-			break;
-		default:
-			x = p.x;
-			y = p.y;
-			break;
-		}
+		if (p.y < 0) p.y = 0;
+		if (p.y > _tft.height()) p.y = _tft.height();
 
-		if (x < 0) x = 0;
-		if (x > _tft.width()) x = _tft.width();
-
-		if (y < 0) x = 0;
-		if (y > _tft.height()) x = _tft.height();
-
-		currentTouch.x = x;
-		currentTouch.y = y;
+		currentTouch.x = p.x;
+		currentTouch.y = p.y;
 
 		if (!lastTouched)
 			currentTouch.event = pushTs;
