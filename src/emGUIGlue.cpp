@@ -349,9 +349,6 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
     tft->startWrite();
 
     //we need to translate coords with respect to MAXIMUM available resolution for our controller
-    //tft->setWindow(sX0, ILI9341_TFTWIDTH - sY1, sX1, ILI9341_TFTHEIGHT - sY0);
-     //tft->setWindow(sX0, 240 - sY1, sX1, 240 - sY0);
-    //tft->setAddrWindow(tft->height() - sX1, tft->width() - sY1, W, H);
     switch(rotation){
       case 0: tft->setAddrWindow(tft->width() - W - sY0, sX0, W, H); break;
       case 1: tft->setAddrWindow(tft->width() - W - sY0, sX0, W, H); break;
@@ -359,8 +356,6 @@ static void bPicture(int16_t sX0, int16_t sY0, xPicture pusPicture) {
       case 3: tft->setAddrWindow(tft->width() - H - sY0, sX0, W, H); break;
       default: tft->setAddrWindow(sX0, sY0, W, H);
     }
-    //for swapping X and Y
-    //tft->setWindow(EMGUI_LCD_WIDTH - sX1, ILI9341_TFTHEIGHT -  sY1, EMGUI_LCD_WIDTH - sX0, ILI9341_TFTHEIGHT - sY0);
 
     bmFile->seekData();
     char data[32]; //TODO: move from stack! 
