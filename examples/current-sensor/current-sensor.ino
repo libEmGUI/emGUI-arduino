@@ -46,14 +46,7 @@ class Touch: public TouchWrapper, public XPT2046_Touchscreen {
 public:
   Touch(Adafruit_GFX &tft):
     TouchWrapper(tft),
-    XPT2046_Touchscreen(TOUCH_CS){
-      xOffset = -330;
-      yOffset = -330;
-      xScale = 1.f;
-      yScale = 1.f;
-      xMax = 3600;
-      yMax = 3500;
-    }
+    XPT2046_Touchscreen(TOUCH_CS){}
 
   bool isTouched(){
     return XPT2046_Touchscreen::touched();
@@ -63,138 +56,76 @@ public:
     auto p = XPT2046_Touchscreen::getPoint();
     TouchWrapper::TouchPoint tp(p.x, p.y);    
     
+    //TODO: compute and store composite transform matrix at startup and apply it inside TouchWrapper
+
     /*
-    c0 = touch_area_width / total_width
-    c2 = touch_area_height / total_height
-    c1 = touch_area_x_offset / total_width
-    c3 = touch_area_y_offset / total_height
+      Matrix coefficient computations
+      
+      xScale = touch_area_width / total_width
+      yScale = touch_area_height / total_height
+      xOffset = touch_area_x_offset / total_width
+      yOffset = touch_area_y_offset / total_height
     */
 
-    float sin = 0.f;
-    float cos = 1.f;
-    float wc = 0.f;
-    float hc = 0.f;
-
-    switch (_tft.getRotation())
-    {
-    case 0:
-      wc = 1.f;
-      hc = 0.f;
-      sin = -1.f;
-      cos = 0.f;
-    case 1:
-      sin = 0.f;
-      cos = 1.f;
-      break;
-    case 3:
-      wc = 1.f;
-      hc = 1.f;
-      sin = 0.f;
-      cos = -1.f;
-    case 2:
-      wc = 0.f;
-      hc = 1.f;
-      sin = 1.f;
-      cos = 0.f;
-      break;
-    default:
-      break;
-    }
-
-    auto scaleRes = 1000.f;
     //scale to square 1000x1000, eliminating offsets
+    auto scaleRes = 1000.f;
+    
     auto maxAdcValueX = 3641.f;
     auto maxAdcValueY = 3450.f;
-    auto xOffset = -80;
-    auto yOffset = -80;
+    float xOffset = -80;
+    float yOffset = -80;
     //scale and flip
-    float w = -scaleRes;
+    float w = -scaleRes; // flip x/y
     float h = scaleRes;
-    float c0 = w / maxAdcValueX;
-    float c2 = h / maxAdcValueY;
-    float c1 = xOffset;
-    float c3 = yOffset;
+    float xScale = w / maxAdcValueX;
+    float yScale = h / maxAdcValueY;
 
+    // offset compensation after flip
     if(w < 0)
-      c1 = -c1 - w;
+      xOffset = -xOffset - w;
     if(h < 0)
-      c3 = -c3 - h;
+      yOffset = -yOffset - h;
 
     float scaleMatrix[9] = {
-      c0, 0.0f, c1,
-      0.0f, c2, c3,
+      xScale, 0.0f, xOffset,
+      0.0f, yScale, yOffset,
       0.0f, 0.0f, 1.0f
     };
 
     auto scale = tp.transform(scaleMatrix, 9);
 
-    /*float rotateMatrix[9] = {
-      cos, sin, wc * maxAdcValue,
-      -sin, cos, hc * maxAdcValue,
-      0, 0, 1
-    };*/
-
-    float c4 = 0.f;
-    float c5 = 0.f;
-    c1 = 0.f;
-    c3 = 0.f;
-    //replace this to sinus/cosinus functions!
+    //rotate according to screen orientation
+    float pi = acosf(-1);
+    float angle = 0.f;
+    float xOffs = 0.f;
+    float yOffs = 0.f;
     switch (_tft.getRotation())
     {
-    case 0: // angle = 270
-      c0 = 0;
-      c2 = 0;
-      c4 = -1;
-      c5 = 1;
-      break;
-    case 1: // angle = 0
-      c0 = 1;
-      c2 = 1;
-      break;
-    case 2: // angle = 90
-      c0 = 0;
-      c2 = 0;
-      c4 = 1;
-      c5 = -1;
-      break;
-    case 3: // angle = 180
-      c0 = -1;
-      c2 = -1;
-      c4 = 0;
-      c5 = 0;
-      break;
-    default:
-      c0 = 1;
-      c2 = 1;
-      break;
+      case 0: angle = 3.f*pi/2.f; xOffs = scaleRes; break; // angle = 270
+      case 1: angle = 0.f; break;  // angle = 0
+      case 2: angle = pi/2; yOffs = scaleRes; break; // angle = 90
+      case 3: angle = pi; xOffs = yOffs = scaleRes; break; // angle = 180
+      default: break;
     }
 
-    if(c0 < 0 || c4 < 0)
-      c1 = scaleRes;
-
-    if(c2 < 0 || c5 < 0)
-      c3 = scaleRes;
-
-    //c0 = c0*_tft.width() / scaleRes;
-    //c2 = c2*_tft.height() / scaleRes;
+    float sin = sinf(angle);
+    float cos = cosf(angle);
 
     float rotateMatrix[9] = {
-      c0, c4, c1,
-      c5, c2, c3,
+      cos, sin, xOffs,
+      -sin, cos, yOffs,
       0.f, 0.f, 1.f
     };
 
     auto rotate = scale.transform(rotateMatrix, 9);
 
-    tp.x = rotate.x;
-    tp.y = rotate.y;
-
-    c0 = _tft.width() / scaleRes;
-    c2 = _tft.height() / scaleRes;
+    //scale to actual width/height
+    xScale = _tft.width() / scaleRes;
+    yScale = _tft.height() / scaleRes;
 
     float scaleMatrix2[9] = {
-      c0, 0.0f, 0.f,
-      0.0f, c2, 0.f,
+      xScale, 0.0f, 0.f,
+      0.0f, yScale, 0.f,
       0.0f, 0.0f, 1.0f
     };
 
@@ -221,7 +152,7 @@ void setup() {
   touch.begin();
 
   tft.begin();
-  tft.setRotation(1); //0 rotation doesn't work???
+  tft.setRotation(1);
   // Setup emGUI
   vGUIGlueInit(&tft);
 
